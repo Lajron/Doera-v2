@@ -6,4 +6,24 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="DTOs\Tags\Requests\" />
+    <Folder Include="DTOs\Tags\Responses\" />
+    <Folder Include="DTOs\TodoItemTag\Requests\" />
+    <Folder Include="DTOs\TodoItemTag\Responses\" />
+    <Folder Include="DTOs\TodoItem\Requests\" />
+    <Folder Include="DTOs\TodoItem\Responses\" />
+    <Folder Include="DTOs\UserTag\Requests\" />
+    <Folder Include="DTOs\UserTag\Responses\" />
+    <Folder Include="DTOs\User\Requests\" />
+    <Folder Include="DTOs\User\Responses\" />
+    <Folder Include="Extensions\" />
+    <Folder Include="Mapping\" />
+    <Folder Include="Specifications\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Doera.Core\Doera.Core.csproj" />
+  </ItemGroup>
+
 </Project>

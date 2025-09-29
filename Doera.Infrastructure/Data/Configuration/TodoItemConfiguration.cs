@@ -13,6 +13,12 @@ namespace Doera.Infrastructure.Data.Configuration {
             builder.Property(t => t.Title)
                 .HasMaxLength(200);
 
+            builder.Property(t => t.Status)
+                .HasConversion<string>();
+
+            builder.Property(t => t.Priority)
+                .HasConversion<string>();
+
             builder.HasOne(t => t.User)
                 .WithMany(u => u.TodoItems)
                 .HasForeignKey(t => t.UserId)
