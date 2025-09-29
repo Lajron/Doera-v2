@@ -10,33 +10,28 @@ namespace Doera.Infrastructure.Persistance {
             ITagRepository _tagRepository,
             ITodoItemRepository _todoItemRepository,
             ITodoItemTagRepository _todoItemTagRepository,
-            IUserRepository _userRepository,
-            IUserTagRepository _userTagRepository
+            ITodoListRepository _todoListRepository
         ) : IUnitOfWork {
 
         public ITagRepository Tags => _tagRepository;
         public ITodoItemRepository TodoItems => _todoItemRepository;
         public ITodoItemTagRepository TodoItemTags => _todoItemTagRepository;
-        public IUserRepository Users => _userRepository;
-        public IUserTagRepository UserTags => _userTagRepository;
+        public ITodoListRepository TodoLists => _todoListRepository;
 
         public async Task<int> CompleteAsync() {
             return await _db.SaveChangesAsync();
         }
 
-        public async Task ExecuteInTransactionAsync(Func<Task> Try, Func<Exception, Task>? Catch = null, Func<Task>? Finally = null) {
+        public async Task ExecuteTransactionAsync(Func<Task> Try, Func<Exception, Task>? Catch = null, Func<Task>? Finally = null) {
             await using var transaction = await _db.Database.BeginTransactionAsync();
             try {
                 await Try();
                 await transaction.CommitAsync();
             } catch (Exception ex) {
                 await transaction.RollbackAsync();
-                if (Catch is not null)
-                    await Catch(ex);
-                throw;
+                if (Catch is not null) await Catch(ex);
             } finally {
-                if (Finally is not null)
-                    await Finally();
+                if (Finally is not null) await Finally();
             }
         }
     }

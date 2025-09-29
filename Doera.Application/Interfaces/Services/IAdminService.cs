@@ -1,3 +1,3 @@
 namespace Doera.Application.Interfaces.Services {
-    public interface IUserService { }
+    public interface IAdminService { }
 }

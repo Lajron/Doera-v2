@@ -20,6 +20,11 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options => options.SignIn
                 .AddSignInManager()
                 .AddDefaultTokenProviders();
 
+builder.Services.ConfigureApplicationCookie(options => {
+    options.LoginPath = "/Account/Login";
+    options.AccessDeniedPath = "/Account/AccessDenied";
+});
+
 // Infrastructure services
 builder.Services.AddInfrastructure();
 
@@ -45,10 +50,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "areas",
-    pattern: "{area:exists}/{controller=Feed}/{action=Index}/{id?}"
-);
+app.MapControllers();
 
 app.MapControllerRoute(
     name: "default",

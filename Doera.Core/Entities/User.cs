@@ -12,6 +12,7 @@ namespace Doera.Core.Entities {
         public DateTimeOffset? UpdatedAt { get; set; }
 
         public ICollection<TodoItem> TodoItems { get; set; } = [];
-        public ICollection<UserTag> UserTags { get; set; } = [];
+        public ICollection<Tag> Tags { get; set; } = [];
+        public ICollection<TodoList> TodoLists { get; set; } = []; 
     }
 }

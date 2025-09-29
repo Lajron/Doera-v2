@@ -27,6 +27,16 @@
                         </li>
                     </ul>
                 </div>
+                @if (SignInManager.IsSignedIn(User)) {
+                    <div class="nav-item">
+                        <form id="logoutForm" class="d-inline" asp-controller="Account" asp-action="Logout">
+                            <button type="submit" class="nav-link text-dark p-0 fs-4" title="Logout">
+                                <span>Logout</span>
+                            </button>
+                        </form>
+                    </div>
+                }
+
             </div>
         </nav>
     </header>

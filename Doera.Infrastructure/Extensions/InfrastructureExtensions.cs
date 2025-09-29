@@ -1,25 +1,19 @@
 ﻿using Doera.Application.Interfaces;
+using Doera.Application.Interfaces.Identity;
 using Doera.Core.Interfaces;
 using Doera.Core.Interfaces.Repositories;
+using Doera.Infrastructure.Identity;
 using Doera.Infrastructure.Persistance;
 using Doera.Infrastructure.Queries;
 using Doera.Infrastructure.Repositories;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Doera.Infrastructure.Extensions {
     public static class InfrastructureExtensions {
-
-        /// <summary>
-        /// Adds infrastructure services to the IServiceCollection.
-        /// </summary>
         public static IServiceCollection AddInfrastructure(this IServiceCollection services) {
             services.AddRepositories();
             services.AddUnitOfWork();
+            services.AddIdentityAdapters();
             services.AddQueryHandlers();
             return services;
         }
@@ -27,9 +21,8 @@ namespace Doera.Infrastructure.Extensions {
         public static IServiceCollection AddRepositories(this IServiceCollection services) {
             services.AddScoped<ITagRepository, TagRepository>();
             services.AddScoped<ITodoItemRepository, TodoItemRepository>();
-            services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<ITodoItemTagRepository, TodoItemTagRepository>();
-            services.AddScoped<IUserTagRepository, UserTagRepository>();
+            services.AddScoped<ITodoListRepository, TodoListRepository>();
             return services;
         }
 
@@ -38,12 +31,16 @@ namespace Doera.Infrastructure.Extensions {
             return services;
         }
 
-        public static IServiceCollection AddQueryHandlers(this IServiceCollection services) {
-            services.AddScoped<IQueryDispatcher, QueryDispatcher>();
-            // services.AddScoped<IQueryHandler<SomeQuery, SomeResult>, SomeQueryHandler>();
+        public static IServiceCollection AddIdentityAdapters(this IServiceCollection services) {
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+            services.AddScoped<IIdentityService, IdentityService>();
             return services;
         }
 
-
+        public static IServiceCollection AddQueryHandlers(this IServiceCollection services) {
+            services.AddScoped<IQueryDispatcher, QueryDispatcher>();
+            return services;
+        }
     }
 }

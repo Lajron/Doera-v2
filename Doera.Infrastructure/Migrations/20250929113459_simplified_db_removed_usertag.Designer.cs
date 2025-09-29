@@ -4,6 +4,7 @@ using Doera.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Doera.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250929113459_simplified_db_removed_usertag")]
+    partial class simplified_db_removed_usertag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -121,36 +124,6 @@ namespace Doera.Infrastructure.Migrations
                     b.HasIndex("TagId");
 
                     b.ToTable("TodoItemTags");
-                });
-
-            modelBuilder.Entity("Doera.Core.Entities.TodoList", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<DateTimeOffset?>("UpdatedAt")
-                        .HasColumnType("datetimeoffset");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("TodoLists");
                 });
 
             modelBuilder.Entity("Doera.Core.Entities.User", b =>
@@ -397,17 +370,6 @@ namespace Doera.Infrastructure.Migrations
                     b.Navigation("TodoItem");
                 });
 
-            modelBuilder.Entity("Doera.Core.Entities.TodoList", b =>
-                {
-                    b.HasOne("Doera.Core.Entities.User", "User")
-                        .WithMany("TodoLists")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -474,8 +436,6 @@ namespace Doera.Infrastructure.Migrations
                     b.Navigation("Tags");
 
                     b.Navigation("TodoItems");
-
-                    b.Navigation("TodoLists");
                 });
 #pragma warning restore 612, 618
         }

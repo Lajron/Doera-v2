@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Doera.Core.Interfaces {
     public interface IUnitOfWork {
-        IUserRepository Users { get; }
-        IUserTagRepository UserTags { get; }
+        ITagRepository Tags { get; }
         ITodoItemRepository TodoItems { get; }
         ITodoItemTagRepository TodoItemTags { get; }
+        ITodoListRepository TodoLists { get; }
         Task<int> CompleteAsync();
-        Task ExecuteInTransactionAsync(Func<Task> Try, Func<Exception, Task>? Catch = null, Func<Task>? Finally = null);
+        Task ExecuteTransactionAsync(Func<Task> Try, Func<Exception, Task>? Catch = null, Func<Task>? Finally = null);
 
     }
 }

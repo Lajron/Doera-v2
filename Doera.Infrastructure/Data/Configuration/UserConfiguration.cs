@@ -1,11 +1,6 @@
 ﻿using Doera.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Doera.Infrastructure.Data.Configuration {
     internal class UserConfiguration : IEntityTypeConfiguration<User> {
@@ -15,8 +10,8 @@ namespace Doera.Infrastructure.Data.Configuration {
                 .HasForeignKey(t => t.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasMany(u => u.UserTags)
-                .WithOne(ut => ut.User)
+            builder.HasMany(u => u.Tags)
+                .WithOne(t => t.User)
                 .HasForeignKey(ut => ut.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
