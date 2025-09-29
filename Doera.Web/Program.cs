@@ -1,7 +1,23 @@
+using Doera.Core.Entities;
+using Doera.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+// Configure Entity Framework and SQL Server
+builder.Services.AddDbContext<ApplicationDbContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
+});
+
+// Configure Identity
+builder.Services.AddIdentity<User, IdentityRole<Guid>>(options => options.SignIn.RequireConfirmedAccount = false)
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddSignInManager()
+                .AddDefaultTokenProviders();
 
 var app = builder.Build();
 
