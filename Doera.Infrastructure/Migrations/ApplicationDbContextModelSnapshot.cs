@@ -76,24 +76,27 @@ namespace Doera.Infrastructure.Migrations
                     b.Property<DateTimeOffset?>("DueDate")
                         .HasColumnType("datetimeoffset");
 
-                    b.Property<int?>("Order")
+                    b.Property<int>("Order")
                         .HasColumnType("int");
 
                     b.Property<string>("Priority")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTimeOffset?>("StartDate")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Status")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<Guid>("TodoListId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetimeoffset");
@@ -103,22 +106,31 @@ namespace Doera.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
+                    b.HasIndex("TodoListId");
+
+                    b.HasIndex("UserId", "TodoListId");
 
                     b.ToTable("TodoItems");
                 });
 
             modelBuilder.Entity("Doera.Core.Entities.TodoItemTag", b =>
                 {
-                    b.Property<Guid>("TodoItemId")
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("TagId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("TodoItemId", "TagId");
+                    b.Property<Guid>("TodoItemId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
 
                     b.HasIndex("TagId");
+
+                    b.HasIndex("TodoItemId", "TagId")
+                        .IsUnique();
 
                     b.ToTable("TodoItemTags");
                 });
@@ -369,11 +381,19 @@ namespace Doera.Infrastructure.Migrations
 
             modelBuilder.Entity("Doera.Core.Entities.TodoItem", b =>
                 {
+                    b.HasOne("Doera.Core.Entities.TodoList", "TodoList")
+                        .WithMany("TodoItems")
+                        .HasForeignKey("TodoListId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Doera.Core.Entities.User", "User")
                         .WithMany("TodoItems")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("TodoList");
 
                     b.Navigation("User");
                 });
@@ -467,6 +487,11 @@ namespace Doera.Infrastructure.Migrations
             modelBuilder.Entity("Doera.Core.Entities.TodoItem", b =>
                 {
                     b.Navigation("TodoItemTags");
+                });
+
+            modelBuilder.Entity("Doera.Core.Entities.TodoList", b =>
+                {
+                    b.Navigation("TodoItems");
                 });
 
             modelBuilder.Entity("Doera.Core.Entities.User", b =>

@@ -1,0 +1,12 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Doera.Application.Interfaces {
+    public interface ISlugGenerator {
+        string Create(string s);
+        string GenerateTagSlug(string tag);
+    }
+}

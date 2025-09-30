@@ -1,3 +1,8 @@
+using Doera.Application.Abstractions.Results;
+using Doera.Application.DTOs.TodoItem.Requests;
+
 namespace Doera.Application.Interfaces.Services {
-    public interface ITodoItemService { }
+    public interface ITodoItemService {
+        Task<Result<Guid>> CreateAsync(CreateTodoItemRequest request);
+    }
 }

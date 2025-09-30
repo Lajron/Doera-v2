@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Doera.Application.Extensions {
     public static class ApplicationExtensions {
 
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services) {
+        public static IServiceCollection AddApplicationLayer(this IServiceCollection services) {
             services.AddScoped<ITagService, TagService>();
             services.AddScoped<ITodoItemService, TodoItemService>();
             services.AddScoped<ITodoListService, TodoListService>();

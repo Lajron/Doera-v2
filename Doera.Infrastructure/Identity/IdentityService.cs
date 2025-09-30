@@ -33,7 +33,7 @@ namespace Doera.Infrastructure.Identity {
                 return Result<Guid>.Failure(new Error("RegistrationFailed", "Could not complete registration. Please try again."));
 
 
-            return Result<Guid>.Success(user.Id);
+            return user.Id;
         }
 
         public async Task<Result> PasswordSignInAsync(string email, string password, bool isPersistent, bool lockoutOnFailure) {

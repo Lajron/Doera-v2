@@ -11,16 +11,16 @@
     <Folder Include="DTOs\Tags\Responses\" />
     <Folder Include="DTOs\TodoItemTag\Requests\" />
     <Folder Include="DTOs\TodoItemTag\Responses\" />
-    <Folder Include="DTOs\TodoItem\Requests\" />
-    <Folder Include="DTOs\TodoItem\Responses\" />
-    <Folder Include="DTOs\TodoList\Requests\" />
-    <Folder Include="DTOs\TodoList\Responses\" />
     <Folder Include="DTOs\UserTag\Requests\" />
     <Folder Include="DTOs\UserTag\Responses\" />
     <Folder Include="DTOs\User\Requests\" />
     <Folder Include="DTOs\User\Responses\" />
     <Folder Include="Mapping\" />
     <Folder Include="Specifications\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="LinqKit.EntityFramework" Version="1.3.8" />
   </ItemGroup>
 
   <ItemGroup>

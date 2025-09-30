@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace Doera.Core.Enums {
     public enum TodoStatus {
-        ToDo = 0,
-        InProgress = 1,
-        Completed = 2
+        None = 0,
+        ToDo = 1,
+        InProgress = 2,
+        Completed = 3
     }
 }

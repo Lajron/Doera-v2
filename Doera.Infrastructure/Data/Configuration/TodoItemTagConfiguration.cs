@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace Doera.Infrastructure.Data.Configuration {
     internal class TodoItemTagConfiguration : IEntityTypeConfiguration<TodoItemTag> {
         public void Configure(EntityTypeBuilder<TodoItemTag> builder) {
-            builder.HasKey(tt => new { tt.TodoItemId, tt.TagId });
+            builder.HasIndex(tt => new { tt.TodoItemId, tt.TagId }).IsUnique();
 
             builder.HasOne(tt => tt.TodoItem)
                 .WithMany(t => t.TodoItemTags)

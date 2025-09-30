@@ -1,4 +1,5 @@
-﻿using Doera.Core.Interfaces;
+﻿using Doera.Core.Entities.Base;
+using Doera.Core.Interfaces;
 using Doera.Core.Interfaces.Repositories;
 using Doera.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 namespace Doera.Infrastructure.Repositories {
     internal class BaseRepository<TEntity>(
             ApplicationDbContext _db
-        ) : IRepository<TEntity> where TEntity : class {
+        ) : IRepository<TEntity> where TEntity : Entity<Guid> {
         protected readonly DbSet<TEntity> _dbSet = _db.Set<TEntity>();
 
         public async Task<TEntity?> FindAsync(ISpecification<TEntity> specification) {
@@ -61,6 +62,10 @@ namespace Doera.Infrastructure.Repositories {
 
         public void RemoveRange(IEnumerable<TEntity> entities) {
             _dbSet.RemoveRange(entities);
+        }
+
+        public async Task<bool> AnyAsync(Guid Id) {
+            return await _dbSet.AnyAsync(e => e.Id == Id);
         }
     }
 }

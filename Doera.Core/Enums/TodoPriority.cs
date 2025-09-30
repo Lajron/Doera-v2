@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace Doera.Core.Enums {
     public enum TodoPriority {
-        Low = 0,
-        Medium = 1,
-        High = 2,
-        Urgent = 3
+        None = 0,
+        Low = 1,
+        Medium = 2,
+        High = 3,
+        Urgent = 4
     }
 }

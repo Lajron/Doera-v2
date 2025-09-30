@@ -1,13 +1,16 @@
 using Doera.Core.Entities;
 using Doera.Infrastructure.Data;
 using Doera.Infrastructure.Extensions;
+using Doera.Application.Extensions;
+using Doera.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddRazorOptions(o => o.ViewLocationExpanders.Add(new CustomViewLocationExpander()));
 
 // Configure Entity Framework and SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
@@ -26,7 +29,10 @@ builder.Services.ConfigureApplicationCookie(options => {
 });
 
 // Infrastructure services
-builder.Services.AddInfrastructure();
+builder.Services.AddInfrastructureLayer();
+
+// Application services
+builder.Services.AddApplicationLayer();
 
 var app = builder.Build();
 

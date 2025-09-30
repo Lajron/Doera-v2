@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Doera.Core.Entities.Base;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Doera.Core.Entities {
-    public class TodoItemTag {
+    public class TodoItemTag : Entity<Guid> {
         public Guid TodoItemId { get; set; }
         public TodoItem? TodoItem { get; set; }
         public Guid TagId { get; set; }

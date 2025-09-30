@@ -26,4 +26,12 @@
     <ProjectReference Include="..\Doera.Infrastructure\Doera.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\" />
+    <Folder Include="Features\TodoList\Mapping\" />
+    <Folder Include="Models\Account\" />
+    <Folder Include="Views\Account\" />
+    <Folder Include="Views\Home\" />
+  </ItemGroup>
+
 </Project>

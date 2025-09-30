@@ -1,16 +1,22 @@
-﻿using Doera.Application.Interfaces;
+﻿using Doera.Application.DTOs.TodoList.Requests;
+using Doera.Application.DTOs.TodoList.Responses;
+using Doera.Application.Interfaces;
 using Doera.Application.Interfaces.Identity;
 using Doera.Core.Interfaces;
 using Doera.Core.Interfaces.Repositories;
 using Doera.Infrastructure.Identity;
 using Doera.Infrastructure.Persistance;
 using Doera.Infrastructure.Queries;
+using Doera.Infrastructure.Queries.TodoListHandlers;
 using Doera.Infrastructure.Repositories;
+using Doera.Infrastructure.Utilities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Doera.Infrastructure.Extensions {
     public static class InfrastructureExtensions {
-        public static IServiceCollection AddInfrastructure(this IServiceCollection services) {
+        public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services) {
+            services.AddUtilities();
             services.AddRepositories();
             services.AddUnitOfWork();
             services.AddIdentityAdapters();
@@ -40,6 +46,13 @@ namespace Doera.Infrastructure.Extensions {
 
         public static IServiceCollection AddQueryHandlers(this IServiceCollection services) {
             services.AddScoped<IQueryDispatcher, QueryDispatcher>();
+
+            services.AddScoped<IQueryHandler<GetTodoListByIdRequest, GetTodoListByIdResponse?>, GetTodoListByIdHandler>();
+            return services;
+        }
+
+        public static IServiceCollection AddUtilities(this IServiceCollection services) {
+            services.AddScoped<ISlugGenerator, SlugGenerator>();
             return services;
         }
     }
