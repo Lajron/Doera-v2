@@ -1,4 +1,5 @@
 ﻿using Doera.Application.Abstractions.Results;
+using Doera.Application.DTOs.Tags;
 using Doera.Application.DTOs.TodoItem;
 using Doera.Application.DTOs.TodoItem.Requests;
 using Doera.Application.DTOs.TodoItem.Responses;
@@ -18,8 +19,8 @@ namespace Doera.Infrastructure.Queries.TodoItemHandlers {
     internal class GetTodoItemByIdHandler(
             ApplicationDbContext _db,
             ICurrentUser _currentUser
-        ) : IQueryHandler<GetTodoItemByIdRequest, GetTodoItemByIdResponse?> {
-        public async Task<Result<GetTodoItemByIdResponse?>> HandleAsync(GetTodoItemByIdRequest query, CancellationToken cancellationToken = default) {
+        ) : IQueryHandler<GetTodoItemByIdRequest, TodoItemDto> {
+        public async Task<Result<TodoItemDto>> HandleAsync(GetTodoItemByIdRequest query, CancellationToken cancellationToken = default) {
             var userId = _currentUser.RequireUserId();
 
             var dto = await _db.TodoItems
@@ -29,11 +30,23 @@ namespace Doera.Infrastructure.Queries.TodoItemHandlers {
                     Title = i.Title,
                     Description = i.Description,
                     Order = i.Order,
+                    Status = i.Status,
+                    Priority = i.Priority,
+                    StartDate = i.StartDate,
+                    DueDate = i.DueDate,
+                    ArchivedAt = i.ArchivedAt,
+                    Tags = i.TodoItemTags.Select(t => new TagDto {
+                        Id = t.TagId,
+                        DisplayName = t.Tag!.DisplayName
+                    })
 
                 })
                 .FirstOrDefaultAsync(cancellationToken);
 
-            return Result<GetTodoItemByIdResponse?>.Success(null);
+            if (dto is null)
+                return Errors.TodoItem.NotFound();
+
+            return dto;
         }
     }
 }

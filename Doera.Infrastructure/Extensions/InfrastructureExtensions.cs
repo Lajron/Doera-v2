@@ -1,4 +1,7 @@
-﻿using Doera.Application.DTOs.TodoList.Requests;
+﻿using Doera.Application.DTOs.TodoItem;
+using Doera.Application.DTOs.TodoItem.Requests;
+using Doera.Application.DTOs.TodoList;
+using Doera.Application.DTOs.TodoList.Requests;
 using Doera.Application.DTOs.TodoList.Responses;
 using Doera.Application.Interfaces;
 using Doera.Application.Interfaces.Identity;
@@ -7,6 +10,7 @@ using Doera.Core.Interfaces.Repositories;
 using Doera.Infrastructure.Identity;
 using Doera.Infrastructure.Persistance;
 using Doera.Infrastructure.Queries;
+using Doera.Infrastructure.Queries.TodoItemHandlers;
 using Doera.Infrastructure.Queries.TodoListHandlers;
 using Doera.Infrastructure.Repositories;
 using Doera.Infrastructure.Utilities;
@@ -47,7 +51,34 @@ namespace Doera.Infrastructure.Extensions {
         public static IServiceCollection AddQueryHandlers(this IServiceCollection services) {
             services.AddScoped<IQueryDispatcher, QueryDispatcher>();
 
-            services.AddScoped<IQueryHandler<GetTodoListByIdRequest, GetTodoListByIdResponse?>, GetTodoListByIdHandler>();
+            //Reflection to automatically register all query handlers
+            var assembly = typeof(QueryDispatcher).Assembly;
+            var handlerInterface = typeof(IQueryHandler<,>);
+
+            var handlerTypes =
+                assembly.GetTypes()
+                .Where(
+                    t => t.IsClass &&
+                    !t.IsAbstract &&
+                    !t.IsGenericType &&
+                    t.GetInterfaces().Any(i =>
+                        i.IsGenericType &&
+                        i.GetGenericTypeDefinition() == handlerInterface
+                    )
+                )
+                .ToList();
+
+            foreach (var impl in handlerTypes) {
+                var implInterface = impl.GetInterfaces()
+                    .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface);
+                foreach (var iface in implInterface) {
+                    services.AddScoped(iface, impl);
+                }
+            }
+
+            //services.AddScoped<IQueryHandler<GetTodoItemByIdRequest, TodoItemDto>, GetTodoItemByIdHandler>();
+            //services.AddScoped<IQueryHandler<GetTodoListByIdRequest, TodoListDto>, GetTodoListByIdHandler>();
+
             return services;
         }
 

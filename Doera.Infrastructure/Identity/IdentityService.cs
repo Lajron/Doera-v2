@@ -15,7 +15,7 @@ namespace Doera.Infrastructure.Identity {
         public async Task<Result<Guid>> RegisterAsync(string email, string password) {
             var existing = await userManager.FindByEmailAsync(email);
             if (existing is not null)
-                return Result<Guid>.Failure(new Error("DuplicateEmail", "Email is already registered.", "Email"));
+                return Errors.Identity.DuplicateEmail();
 
             var user = new User { UserName = email, Email = email };
 
@@ -23,14 +23,14 @@ namespace Doera.Infrastructure.Identity {
             foreach (var validator in userManager.PasswordValidators) {
                 var res = await validator.ValidateAsync(userManager, user, password);
                 if (!res.Succeeded)
-                    pwdErrors.AddRange(res.Errors.Select(e => new Error(e.Code, e.Description, "Password")));
+                    pwdErrors.AddRange(res.Errors.Select(e => Errors.Common.Validation(e.Description)));
             }
             if (pwdErrors.Count > 0)
-                return Result<Guid>.Failure(pwdErrors);
+                return pwdErrors;
 
             var create = await userManager.CreateAsync(user, password);
             if (!create.Succeeded)
-                return Result<Guid>.Failure(new Error("RegistrationFailed", "Could not complete registration. Please try again."));
+                return Errors.Identity.RegistrationFailed();
 
 
             return user.Id;
@@ -39,9 +39,9 @@ namespace Doera.Infrastructure.Identity {
         public async Task<Result> PasswordSignInAsync(string email, string password, bool isPersistent, bool lockoutOnFailure) {
             var result = await signInManager.PasswordSignInAsync(email, password, isPersistent, lockoutOnFailure);
             if (result.Succeeded) return Result.Success();
-            if (result.IsLockedOut) return Result.Failure(new Error("LockedOut", "Your account is locked."));
-            if (result.RequiresTwoFactor) return Result.Failure(new Error("RequiresTwoFactor", "Two-factor authentication is required."));
-            return Result.Failure(new Error("InvalidCredentials", "Invalid email or password."));
+            if (result.IsLockedOut) return Errors.Identity.LockedOut();
+            if (result.RequiresTwoFactor) return Errors.Identity.RequiresTwoFactor();
+            return Errors.Identity.InvalidCredentials();
         }
 
         public async Task<Result> SignOutAsync() {
@@ -51,25 +51,25 @@ namespace Doera.Infrastructure.Identity {
 
         public async Task<Result> ChangePasswordAsync(Guid userId, string currentPassword, string newPassword) {
             var user = await userManager.FindByIdAsync(userId.ToString());
-            if (user is null) return Result.Failure(new Error("UserNotFound", "User not found."));
+            if (user is null) return Errors.Identity.NotFound();
             var change = await userManager.ChangePasswordAsync(user, currentPassword, newPassword);
             return change.Succeeded
                 ? Result.Success()
-                : Result.Failure(change.Errors.Select(e => new Error(e.Code, e.Description, "Password")));
+                : change.Errors.Select(e => Errors.Common.Validation(e.Description)).ToList();
         }
 
         public async Task<Result<User>> FindByEmailAsync(string email) {
             var user = await userManager.FindByEmailAsync(email);
             return user is null
-                ? Result<User>.Failure(new Error("NotFound", "User not found.", "Email"))
-                : Result<User>.Success(user);
+                ? Errors.Identity.NotFound()
+                : user;
         }
 
         public async Task<Result<User>> FindByIdAsync(Guid id) {
             var user = await userManager.FindByIdAsync(id.ToString());
             return user is null
-                ? Result<User>.Failure(new Error("NotFound", "User not found."))
-                : Result<User>.Success(user);
+                ? Errors.Identity.NotFound()
+                : user;
         }
     }
 }

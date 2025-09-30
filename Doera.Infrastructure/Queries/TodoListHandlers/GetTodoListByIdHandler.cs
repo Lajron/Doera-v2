@@ -14,14 +14,14 @@ namespace Doera.Infrastructure.Queries.TodoListHandlers {
     internal class GetTodoListByIdHandler(
             ApplicationDbContext _db,
             ICurrentUser _currentUser
-        ) : IQueryHandler<GetTodoListByIdRequest, GetTodoListByIdResponse?> {
+        ) : IQueryHandler<GetTodoListByIdRequest, TodoListDto> {
 
-        public async Task<Result<GetTodoListByIdResponse?>> HandleAsync(GetTodoListByIdRequest query, CancellationToken cancellationToken = default) {
+        public async Task<Result<TodoListDto>> HandleAsync(GetTodoListByIdRequest query, CancellationToken cancellationToken = default) {
             var userId = _currentUser.RequireUserId();
 
             var dto = await _db.TodoLists
                 .Where(l => l.Id == query.Id && l.UserId == userId)
-                .Select(l => new GetTodoListByIdResponse {
+                .Select(l => new TodoListDto {
                         Id = l.Id,
                         Name = l.Name,
                         Order = l.Order,
@@ -47,9 +47,9 @@ namespace Doera.Infrastructure.Queries.TodoListHandlers {
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (dto is null)
-                return Result<GetTodoListByIdResponse?>.Failure(new Error("TodoList.NotFound", "The specified todo list was not found."));
+                return Errors.TodoList.NotFound();
 
-            return Result<GetTodoListByIdResponse?>.Success(dto);
+            return dto;
         }
     }
 }

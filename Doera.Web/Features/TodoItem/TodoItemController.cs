@@ -38,8 +38,9 @@ namespace Doera.Web.Features.TodoItem {
                 Priority = model.Priority,
                 StartDate = model.StartDate,
                 DueDate = model.DueDate,
-                TagNames = model.TagNames.Split(',', System.StringSplitOptions.RemoveEmptyEntries | System.StringSplitOptions.TrimEntries)
+                TagNames = model.TagNames?.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries) ?? []
             };
+
             var result = await _todoItemService.CreateAsync(request);
             if (!result.Succeeded) {
                 ModelState.AddResultErrors(result.Errors);

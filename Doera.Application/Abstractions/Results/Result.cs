@@ -13,6 +13,9 @@ namespace Doera.Application.Abstractions.Results {
         public static Result Success() => new(true, []);
         public static Result Failure(params Error[] errors) => new(false, errors);
         public static Result Failure(IEnumerable<Error> errors) => new(false, [.. errors]);
+
+        public static implicit operator Result(Error error) => Failure(error);
+        public static implicit operator Result(List<Error> errors) => Failure(errors);
     }
 
     public sealed class Result<T> : Result {
@@ -31,5 +34,7 @@ namespace Doera.Application.Abstractions.Results {
         // This allows returning a value of type T directly where Result<T> is expected
         // e.g., return someValue; instead of return Result<T>.Success(someValue);
         public static implicit operator Result<T>(T value) => Success(value);
+        public static implicit operator Result<T>(Error error) => Failure(error);
+        public static implicit operator Result<T>(List<Error> errors) => Failure(errors);
     }
 }

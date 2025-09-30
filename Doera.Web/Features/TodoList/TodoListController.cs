@@ -1,4 +1,5 @@
-﻿using Doera.Application.DTOs.TodoList.Requests;
+﻿using Doera.Application.DTOs.TodoList;
+using Doera.Application.DTOs.TodoList.Requests;
 using Doera.Application.DTOs.TodoList.Responses;
 using Doera.Application.Interfaces;
 using Doera.Application.Interfaces.Services;
@@ -21,11 +22,9 @@ namespace Doera.Web.Features.TodoList {
         public async Task<ActionResult> Index(Guid id) {
             var request = new GetTodoListByIdRequest { Id = id };
 
-            var result = await _queryDispatcher.DispatchAsync<GetTodoListByIdRequest,GetTodoListByIdResponse?>(request);
+            var result = await _queryDispatcher.DispatchAsync<GetTodoListByIdRequest,TodoListDto>(request);
 
-            if (!result.Succeeded) {
-                return NotFound();
-            }
+            if (result.Succeeded is false) return NotFound();
 
             // Note: Map to ViewModel
             // Here we assume a mapping extension method exists
