@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Doera.Application.DTOs.TodoList.Requests {
-    public record CreateTodoListRequest {
-        public required string Name { get; init; }
+    public record UpdateTodoListRequest {
+        public required Guid Id { get; init; }
+        public string? Name { get; init; }
     }
 }

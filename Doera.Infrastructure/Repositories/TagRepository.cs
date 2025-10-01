@@ -13,6 +13,12 @@ namespace Doera.Infrastructure.Repositories {
             ICurrentUser _currentUser
         ) : BaseRepository<Tag>(_db), ITagRepository {
 
+        public async Task CleanupOrphanedTagsAsync() {
+            await _dbSet
+                .Where(tag => !tag.TodoItemTags.Any())
+                .ExecuteDeleteAsync();
+        }
+
         public async Task<ICollection<TodoItemTag>> ResolveTagsAsync(IEnumerable<string> itemTags) {
             if (itemTags == null || !itemTags.Any())
                 return [];
@@ -32,7 +38,7 @@ namespace Doera.Infrastructure.Repositories {
             if (incomingMap.Count == 0)
                 return [];
 
-            // EF Core can't translate .Keys directly, so we convert to a list
+            // EF Core can't translate .ContainsKeys directly, so we convert to a list
             var slugs = incomingMap.Keys.ToList();
 
             var existingTags = await _dbSet

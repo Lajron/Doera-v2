@@ -21,7 +21,7 @@ namespace Doera.Application.Services {
             var listOrder = await _uof.TodoLists.GetCountForUserAsync(userId);
 
             var todoList = new TodoList {
-                Name = request.Title,
+                Name = request.Name,
                 Order = listOrder,
                 UserId = userId
             };
@@ -31,5 +31,43 @@ namespace Doera.Application.Services {
 
             return todoList.Id;
         }
+
+        public async Task<Result> UpdateAsync(UpdateTodoListRequest request) {
+            var userId = _currentUser.RequireUserId();
+
+            var todoList = await _uof.TodoLists.FindByIdAsync(request.Id);
+
+            if (todoList is null) return Errors.TodoList.NotFound();
+
+            if (todoList.UserId != userId) return Errors.Common.AccessDenied();
+
+            todoList.Name = request.Name ?? todoList.Name;
+
+            await _uof.CompleteAsync();
+
+            return Result.Success();
+        }
+
+        public async Task<Result> DeleteAsync(Guid id) {
+            var userId = _currentUser.RequireUserId();
+
+            var todoList = await _uof.TodoLists.FindByIdAsync(id);
+
+            if (todoList is null) return Errors.TodoList.NotFound();
+
+            if (todoList.UserId != userId) return Errors.Common.AccessDenied();
+
+            _uof.TodoLists.Remove(todoList);
+
+            await _uof.CompleteAsync();
+
+            await _uof.Tags.CleanupOrphanedTagsAsync();
+
+            return Result.Success();
+        }
+
+
     }
 }
+
+    

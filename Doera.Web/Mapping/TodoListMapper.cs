@@ -6,7 +6,7 @@ namespace Doera.Web.Mapping {
 
         public static CreateTodoListRequest ToDto(this CreateTodoListVM model) {
             return new CreateTodoListRequest {
-                Title = model.Title
+                Name = model.Title
             };
         }
 

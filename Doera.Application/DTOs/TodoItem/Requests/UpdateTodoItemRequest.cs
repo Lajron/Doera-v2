@@ -10,7 +10,7 @@ namespace Doera.Application.DTOs.TodoItem.Requests {
         public TodoPriority? Priority { get; init; }
         public DateTimeOffset? StartDate { get; init; }
         public DateTimeOffset? DueDate { get; init; }
-        public IEnumerable<string> TagNames { get; init; } = [];
+        public IEnumerable<string>? TagNames { get; init; }
 
     }
 }

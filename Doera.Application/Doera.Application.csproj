@@ -16,7 +16,6 @@
     <Folder Include="DTOs\User\Requests\" />
     <Folder Include="DTOs\User\Responses\" />
     <Folder Include="Mapping\" />
-    <Folder Include="Specifications\" />
 
   </ItemGroup>
 
