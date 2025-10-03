@@ -3,16 +3,10 @@
 
 @{
     ViewData["Title"] = "Edit list";
-}
-
-@section Breadcrumbs {
-    @await Html.PartialAsync("_Breadcrumbs", 
-        new BreadcrumbsVM(
-            new BreadcrumbSegment("Dashboard", Url.Action("Index","Home")),
-            new BreadcrumbSegment(Model.Name, Url.Action("Index","TodoList", new { id = Model.Id})),
-            new BreadcrumbSegment("Edit", Url.Action("Edit","TodoList", new { id = Model.Id}), true)
-        )
-    )
+    ViewData["Breadcrumbs"] = new BreadcrumbsVM(
+            new BreadcrumbSegment(Model.Name, Url.Action("Index", "TodoList", new { id = Model.Id })),
+            new BreadcrumbSegment("Edit", Url.Action("Edit", "TodoList", new { id = Model.Id }), true)
+        );
 }
 
 <div class="container py-3">

@@ -1,0 +1,42 @@
+@using Doera.Application.DTOs.TodoItem
+@{
+    var filter = ViewData["Filter"] as TodoItemFilter;
+
+    var hasList = filter?.TodoListId is not null
+                  || Context.Request.Query.ContainsKey("TodoListId");
+
+    var targetController = hasList ? "TodoList" : "Home";
+    var q = Context.Request.Query;
+
+    string? val(string name, string? fallback = null) =>
+        !string.IsNullOrWhiteSpace(fallback) ? fallback :
+        (q.ContainsKey(name) ? q[name].ToString() : null);
+
+    var todoListId = val("TodoListId", filter?.TodoListId?.ToString());
+    var status     = val("Status",     filter?.Status?.ToString());
+    var priority   = val("Priority",   filter?.Priority?.ToString());
+    var isArchived = val("IsArchived", filter?.IsArchived?.ToString());
+    var dueAfter   = val("DueAfter",   filter?.DueAfter?.ToString("yyyy-MM-ddTHH:mm"));
+    var dueBefore  = val("DueBefore",  filter?.DueBefore?.ToString("yyyy-MM-ddTHH:mm"));
+    var sortBy     = val("SortBy",     filter?.SortBy.ToString());
+    var direction  = val("Direction",  filter?.Direction.ToString());
+    var search     = val("Search",     filter?.Search);
+
+    var actionUrl = Url.Action("Search", targetController)!; // explicit, no ambiguity
+}
+
+<form action="@actionUrl" method="get" class="ms-3">
+    @if (!string.IsNullOrWhiteSpace(todoListId)) { <input type="hidden" name="TodoListId" value="@todoListId" /> }
+    @if (!string.IsNullOrWhiteSpace(status)   && !string.Equals(status,   "None", StringComparison.OrdinalIgnoreCase)) { <input type="hidden" name="Status" value="@status" /> }
+    @if (!string.IsNullOrWhiteSpace(priority) && !string.Equals(priority, "None", StringComparison.OrdinalIgnoreCase)) { <input type="hidden" name="Priority" value="@priority" /> }
+    @if (!string.IsNullOrWhiteSpace(isArchived)) { <input type="hidden" name="IsArchived" value="@isArchived" /> }
+    @if (!string.IsNullOrWhiteSpace(dueAfter))   { <input type="hidden" name="DueAfter" value="@dueAfter" /> }
+    @if (!string.IsNullOrWhiteSpace(dueBefore))  { <input type="hidden" name="DueBefore" value="@dueBefore" /> }
+    @if (!string.IsNullOrWhiteSpace(sortBy))     { <input type="hidden" name="SortBy" value="@sortBy" /> }
+    @if (!string.IsNullOrWhiteSpace(direction))  { <input type="hidden" name="Direction" value="@direction" /> }
+
+    <div class="input-group input-group-sm">
+        <span class="input-group-text"><i class="bi bi-search"></i></span>
+        <input class="form-control" name="Search" value="@search" placeholder="Search tasks..." />
+    </div>
+</form>

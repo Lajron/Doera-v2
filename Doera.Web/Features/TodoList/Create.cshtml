@@ -1,14 +1,12 @@
 ﻿@using Doera.Web.Features.TodoList.ViewModels
 @model CreateTodoListVM
 
-@section Breadcrumbs {
-    @await Html.PartialAsync("_Breadcrumbs", 
-        new BreadcrumbsVM(
-            new BreadcrumbSegment("Dashboard", Url.Action("Index","Home")),
+@{
+    ViewData["Title"] = "Create Todo List";
+    ViewData["Breadcrumbs"] = new BreadcrumbsVM(
             new BreadcrumbSegment("List"),
             new BreadcrumbSegment("Create", Url.Action("Create","TodoList"), true)
-        )
-    )
+        );
 }
 
 <div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">

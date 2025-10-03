@@ -1,32 +1,36 @@
 ﻿@using Doera.Application.DTOs.Tags
 @using Doera.Application.DTOs.TodoItem
 @using Doera.Web.ViewModels
-@model TodoListDto
+@model TodoListPageVM
 
 @{
-    ViewData["Title"] = Model.Name;
+    ViewData["Title"] = Model.List.Name;
     ViewData["Breadcrumbs"] = new BreadcrumbsVM(
-        new BreadcrumbSegment(Model.Name, Active: true)
+        new BreadcrumbSegment(Model.List.Name, Active: true)
     );
+    ViewData["Filter"] = Model.Filter;
 }
 
 @section Tags{
-    @await Component.InvokeAsync("GetTags", new TagFilter { TodoListId = Model.Id })
+    @await Html.PartialAsync("_TodoItemFilterBar", Model.Filter)
+    @await Component.InvokeAsync("GetTags", new TagFilter { TodoListId = Model.List.Id })
 }
 
 <div class="container py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
-            <h1 class="h3 m-0">@Model.Name</h1>
-        </div>
-        <div class="btn-group">
-            <a asp-controller="TodoItem" asp-action="Create" asp-route-listId="@Model.Id" class="btn btn-sm btn-primary">
-                + Add item
-            </a>
-            <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-secondary">Back</a>
+            <h1 class="h3 m-0">@Model.List.Name</h1>
         </div>
     </div>
-    <hr />
-    @await Html.PartialAsync("_TodoItemQuickCreate", new CreateTodoItemVM { TodoListId = Model.Id })
-    @await Component.InvokeAsync("GetTodoItems", new TodoItemFilter { TodoListId = Model.Id })
+    <hr class="m-0"/>
+    <div class="d-flex gap-2">
+        <div class="col-8 d-flex flex-column gap-2">
+            @await Html.PartialAsync("_TodoItemQuickCreate", new CreateTodoItemVM { TodoListId = Model.List.Id })
+            @await Component.InvokeAsync("GetTodoItems", Model.Filter)
+        </div>
+        <div class="col-4 bg-white">
+            <h4 class="text-center">Statistics</h4>
+        </div>
+    </div>
+    
 </div>

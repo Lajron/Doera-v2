@@ -1,0 +1,154 @@
+@using Doera.Application.DTOs.TodoItem
+@using Doera.Core.Enums
+@model TodoItemFilter
+
+@{
+    string StatusText = Model.Status is TodoStatus.None ? "Any" : Model.Status.ToString();
+    string PriorityText = Model.Priority is TodoPriority.None ? "Any" : Model.Priority.ToString();
+    string ArchivedText = Model.IsArchived is null ? "Any" : (Model.IsArchived == true ? "Archived" : "Active");
+    string SortText = Model.SortBy switch {
+        TodoSort.DueDate => "Due date",
+        TodoSort.CreatedAt => "Created",
+        _ => "Order"
+    };
+    string DueText = (Model.DueAfter, Model.DueBefore) switch {
+        (not null, not null) => $"Due: {Model.DueAfter:MM/dd} - {Model.DueBefore:MM/dd}",
+        (not null, null)     => $"Due: >= {Model.DueAfter:MM/dd}",
+        (null, not null)     => $"Due: <= {Model.DueBefore:MM/dd}",
+        _                    => "Due: Any"
+    };
+}
+
+<form asp-action="Search" method="get" class="card card-body py-2 m-0 border-0 bg-light-subtle" id="todo-filter-form">
+    <input type="hidden" name="TodoListId" value="@Model.TodoListId" />
+
+    <div class="d-flex flex-wrap gap-2 align-items-end">
+
+        <!-- Due date range dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-calendar-date me-1"></i>@DueText
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-3" style="min-width: 260px;">
+                <div class="mb-2 small text-muted">Due between</div>
+                <div class="input-group input-group-sm mb-2">
+                    <span class="input-group-text">From</span>
+                    <input type="datetime-local" class="form-control" id="DueAfter" name="DueAfter"
+                           value="@(Model.DueAfter?.ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text">To</span>
+                    <input type="datetime-local" class="form-control" id="DueBefore" name="DueBefore"
+                           value="@(Model.DueBefore?.ToString("yyyy-MM-ddTHH:mm"))" />
+                </div>
+            </div>
+        </div>
+
+        <!-- Status dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-list-check me-1"></i>Status: @StatusText
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 180px;">
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="radio" name="Status" id="status-any" value="" @(Model.Status == TodoStatus.None ? "checked" : "")>
+                    <label class="form-check-label small" for="status-any">Any</label>
+                </div>
+                @foreach (var s in Enum.GetValues<TodoStatus>()) {
+                    if (s == TodoStatus.None) { continue; }
+                    var id = $"status-{s}";
+                    <div class="form-check form-check-sm">
+                        <input class="form-check-input" type="radio" name="Status" id="@id" value="@s" @(Model.Status == s ? "checked" : "")>
+                        <label class="form-check-label small" for="@id">@s</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Priority dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-lightning me-1"></i>Priority: @PriorityText
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 180px;">
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="radio" name="Priority" id="prio-any" value="" @(Model.Priority == TodoPriority.None ? "checked" : "")>
+                    <label class="form-check-label small" for="prio-any">Any</label>
+                </div>
+                @foreach (var p in Enum.GetValues<TodoPriority>()) {
+                    if (p == TodoPriority.None) { continue; }
+                    var id = $"prio-{p}";
+                    <div class="form-check form-check-sm">
+                        <input class="form-check-input" type="radio" name="Priority" id="@id" value="@p" @(Model.Priority == p ? "checked" : "")>
+                        <label class="form-check-label small" for="@id">@p</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Archived dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-archive me-1"></i>Archived: @ArchivedText
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 180px;">
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="radio" name="IsArchived" id="arch-any" value="" @(Model.IsArchived is null ? "checked" : "")>
+                    <label class="form-check-label small" for="arch-any">Any</label>
+                </div>
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="radio" name="IsArchived" id="arch-active" value="false" @(Model.IsArchived == false ? "checked" : "")>
+                    <label class="form-check-label small" for="arch-active">Active</label>
+                </div>
+                <div class="form-check form-check-sm">
+                    <input class="form-check-input" type="radio" name="IsArchived" id="arch-archived" value="true" @(Model.IsArchived == true ? "checked" : "")>
+                    <label class="form-check-label small" for="arch-archived">Archived</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sort dropdown (button 1) -->
+        <div class="dropdown">
+            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="bi bi-sort-down me-1"></i>Sort: @SortText
+            </button>
+            <div class="dropdown-menu dropdown-menu-end p-2" style="min-width: 200px;">
+                @foreach (var s in Enum.GetValues<TodoSort>()) {
+                    var id = $"sort-{s}";
+                    <div class="form-check form-check-sm">
+                        <input class="form-check-input" type="radio" name="SortBy" id="@id" value="@s" @(Model.SortBy == s ? "checked" : "")>
+                        <label class="form-check-label small" for="@id">@s</label>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Direction buttons (button 2) -->
+        <div>
+            <div class="btn-group btn-group-sm" role="group" aria-label="Sort direction">
+                <input type="radio" class="btn-check" name="Direction" id="dirAsc" value="Asc" @(Model.Direction == SortDirection.Asc ? "checked" : "")>
+                <label class="btn btn-outline-secondary" for="dirAsc" title="Ascending">
+                    <i class="bi bi-arrow-up"></i>
+                </label>
+
+                <input type="radio" class="btn-check" name="Direction" id="dirDesc" value="Desc" @(Model.Direction == SortDirection.Desc ? "checked" : "")>
+                <label class="btn btn-outline-secondary" for="dirDesc" title="Descending">
+                    <i class="bi bi-arrow-down"></i>
+                </label>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="ms-auto d-flex gap-2">
+            <a class="btn btn-sm btn-outline-secondary"
+               asp-action="Search" asp-route-id="@Model.TodoListId"
+               title="Reset filters">Reset</a>
+            <button type="submit" class="btn btn-sm btn-primary" title="Apply filters">Apply</button>
+        </div>
+    </div>
+</form>
+
+<style>
+    /* Keep the 'to' separator compact in the date range */
+    #todo-filter-form .input-group-text.text-muted { min-width: 2.25rem; justify-content: center; }
+</style>

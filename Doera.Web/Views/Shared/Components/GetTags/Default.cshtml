@@ -3,13 +3,13 @@
 
 <nav class="d-flex flex-nowrap gap-2 p-2 shadow-sm bg-light-subtle overflow-auto">
     <!-- Always visible "All" button -->
-    <button type="button" class="btn btn-outline-secondary fw-semibold">
+    <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold rounded-1">
         All Tags
     </button>
 
     <!-- Tag buttons -->
     @foreach (var tag in Model) {
-        <button type="button" class="btn btn-outline-secondary fw-semibold">
+        <button type="button" class="btn btn-sm btn-outline-secondary fw-semibold rounded-1">
             @tag.DisplayName
         </button>
     }

@@ -25,6 +25,7 @@
         var qs = Context?.Request?.Query["listId"].FirstOrDefault();
         if (Guid.TryParse(qs, out var qid)) currentListId = qid;
     }
+
 }
 
 <div class="p-0">

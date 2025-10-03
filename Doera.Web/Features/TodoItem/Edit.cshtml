@@ -5,9 +5,8 @@
 @{
     ViewData["Title"] = "Edit item";
     ViewData["Breadcrumbs"] = new BreadcrumbsVM(
-        new BreadcrumbSegment("List", Url.Action("Index","TodoList", new { id = Model.TodoListId })), // text replaced by sidebar name via JS
-        new BreadcrumbSegment(Model.Title),
-        new BreadcrumbSegment("Edit", Active: true)
+        new BreadcrumbSegment("List", Url.Action("Index", "TodoList", new { id = Model.TodoListId })),
+        new BreadcrumbSegment(Model.Title, Active: true)
     );
 }
 

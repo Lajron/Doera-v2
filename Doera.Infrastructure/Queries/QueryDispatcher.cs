@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace Doera.Infrastructure.Queries {
     public class QueryDispatcher(IServiceProvider _serviceProvider) : IQueryDispatcher {
-        public async Task<Result<TResult>> DispatchAsync<TQuery, TResult>(TQuery query) where TQuery : class {
+        public async Task<Result<TResult>> DispatchAsync<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default) where TQuery : class {
             var service = _serviceProvider.GetRequiredService<IQueryHandler<TQuery, TResult>>();
-            return await service.HandleAsync(query);
+            return await service.HandleAsync(query, cancellationToken);
         }
     }
 }

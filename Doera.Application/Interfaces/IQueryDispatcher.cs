@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 
 namespace Doera.Application.Interfaces {
     public interface IQueryDispatcher {
-        Task<Result<TResult>> DispatchAsync<TQuery, TResult>(TQuery query) where TQuery : class;
+        Task<Result<TResult>> DispatchAsync<TQuery, TResult>(TQuery query, CancellationToken cancellationToken = default) where TQuery : class;
     }
 }

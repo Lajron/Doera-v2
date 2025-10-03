@@ -7,6 +7,8 @@ using Doera.Web.Features.TodoItem.ViewModels;
 using Doera.Web.Mapping;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using NToastNotify;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Doera.Web.Features.TodoItem {
@@ -14,11 +16,14 @@ namespace Doera.Web.Features.TodoItem {
     [Authorize]
     public class TodoItemController(
             ITodoItemService _todoItemService,
-            IQueryDispatcher _queryDispatcher
+            IQueryDispatcher _queryDispatcher,
+            IToastNotification _toastNotification
         ) : Controller {
 
         [HttpGet("{id:guid}")]
-        public IActionResult Index(Guid id) => View();
+        public IActionResult Index(Guid id) {
+            return View();
+        }
 
         [HttpGet("Create")]
         public IActionResult Create(Guid listId) {
@@ -49,19 +54,20 @@ namespace Doera.Web.Features.TodoItem {
                 return View(nameof(Create), model);
             }
 
+            _toastNotification.AddSuccessToastMessage("Item created.");
             return RedirectToAction("Index", "TodoList", new { id = model.TodoListId });
         }
 
 
         [HttpGet("Edit/{id:guid}")]
-        public async Task<IActionResult> Edit(Guid id) {
+        public async Task<IActionResult> Edit(Guid id, CancellationToken cancellationToken) {
             var dtoResult = await _queryDispatcher.DispatchAsync<GetTodoItemByIdRequest, TodoItemDto>(
-                new GetTodoItemByIdRequest { Id = id });
+                new GetTodoItemByIdRequest { Id = id }, cancellationToken);
 
-            if (!dtoResult.Succeeded || dtoResult.Value is null)
+            if (!dtoResult.Succeeded)
                 return NotFound();
 
-            var vm = dtoResult.Value.ToEditVM();
+            var vm = dtoResult.Value!.ToEditVM();
             return View(vm);
         }
 
@@ -79,6 +85,7 @@ namespace Doera.Web.Features.TodoItem {
                 return View(nameof(Edit), model);
             }
 
+            _toastNotification.AddSuccessToastMessage("Item updated.");
             return RedirectToAction("Index", "TodoList", new { id = model.TodoListId });
         }
 
@@ -88,11 +95,12 @@ namespace Doera.Web.Features.TodoItem {
             var result = await _todoItemService.DeleteAsync(itemId);
 
             if (!result.Succeeded) {
-                // Toaster error to add
-                return RedirectToAction("Index", "TodoList", new { id = listId });
+                _toastNotification.Error(result);
+            } else {
+                _toastNotification.AddSuccessToastMessage("Item deleted.");
             }
-            return RedirectToAction("Index", "TodoList", new { id = listId });
 
+            return RedirectToAction("Index", "TodoList", new { id = listId });
         }
     }
 }

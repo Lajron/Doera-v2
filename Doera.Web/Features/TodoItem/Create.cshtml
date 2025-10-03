@@ -1,18 +1,13 @@
-﻿@model CreateTodoItemVM
+﻿@using Doera.Web.ViewModels
+@model CreateTodoItemVM
 
 @{
-    ViewData["Title"] = "Add item";
-}
-
-@section Breadcrumbs {
-    @await Html.PartialAsync("_Breadcrumbs", 
-        new BreadcrumbsVM(
-            new BreadcrumbSegment("Dashboard", Url.Action("Index","Home")),
-            new BreadcrumbSegment("List", Url.Action("Index","TodoList", new { id = Model.TodoListId })),
-            new BreadcrumbSegment("Task"),
-            new BreadcrumbSegment("Create", Url.Action("Create","TodoItem"), true)
-        )
-    )
+    ViewData["Title"] = "Create item";
+    ViewData["Breadcrumbs"] = new BreadcrumbsVM(
+        new BreadcrumbSegment("List", Url.Action("Index","TodoList", new { id = Model.TodoListId })),
+        new BreadcrumbSegment("Task"),
+        new BreadcrumbSegment("Create", Active: true)
+    );
 }
 
 <div class="container py-3">

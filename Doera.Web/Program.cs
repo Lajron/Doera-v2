@@ -5,12 +5,20 @@ using Doera.Application.Extensions;
 using Doera.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using NToastNotify;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
-    .AddRazorOptions(o => o.ViewLocationExpanders.Add(new CustomViewLocationExpander()));
+    .AddRazorOptions(o => o.ViewLocationExpanders.Add(new CustomViewLocationExpander()))
+    .AddNToastNotifyToastr(new NToastNotify.ToastrOptions {
+        ProgressBar = true,
+        PositionClass = ToastPositions.BottomRight,
+        PreventDuplicates = true,
+        CloseButton = true,
+        TimeOut = 5000
+    });
 
 // Configure Entity Framework and SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
@@ -55,6 +63,9 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Enable on redirect notifications
+app.UseNToastNotify();
 
 app.MapControllers();
 
