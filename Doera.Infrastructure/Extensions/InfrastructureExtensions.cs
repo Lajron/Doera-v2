@@ -7,6 +7,8 @@ using Doera.Application.Interfaces;
 using Doera.Application.Interfaces.Identity;
 using Doera.Core.Interfaces;
 using Doera.Core.Interfaces.Repositories;
+using Doera.Infrastructure.Data;
+using Doera.Infrastructure.Email;
 using Doera.Infrastructure.Identity;
 using Doera.Infrastructure.Persistance;
 using Doera.Infrastructure.Queries;
@@ -25,6 +27,10 @@ namespace Doera.Infrastructure.Extensions {
             services.AddUnitOfWork();
             services.AddIdentityAdapters();
             services.AddQueryHandlers();
+
+            services.AddScoped<IDbInitializer, DbInitializer>();
+            services.AddTransient<IEmailSender, SendGridEmailSender>();
+
             return services;
         }
 

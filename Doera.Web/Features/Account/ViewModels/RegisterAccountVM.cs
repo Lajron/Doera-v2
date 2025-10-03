@@ -13,5 +13,11 @@ namespace Doera.Web.Features.Account.ViewModels {
         [StringLength(100, MinimumLength = 6)]
         [Display(Name = "Password")]
         public required string Password { get; set; }
+
+        [Required]
+        [DataType(DataType.Password)]
+        [Display(Name = "Confirm Password")]
+        [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
+        public required string ConfirmPassword { get; set; }
     }
 }

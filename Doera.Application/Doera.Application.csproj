@@ -15,7 +15,6 @@
     <Folder Include="DTOs\UserTag\Responses\" />
     <Folder Include="DTOs\User\Requests\" />
     <Folder Include="DTOs\User\Responses\" />
-    <Folder Include="Mapping\" />
 
   </ItemGroup>
 

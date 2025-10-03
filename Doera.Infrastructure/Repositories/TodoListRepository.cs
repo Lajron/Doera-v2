@@ -30,5 +30,12 @@ namespace Doera.Infrastructure.Repositories {
             return await query.CountAsync();
         }
 
+        public async Task<int> GetHeighestListOrderAsync(Guid userId) {
+            return await _dbSet
+                .Where(l => l.UserId == userId)
+                .OrderByDescending(l => l.Order)
+                .Select(l => l.Order)
+                .FirstAsync();
+        }
     }
 }

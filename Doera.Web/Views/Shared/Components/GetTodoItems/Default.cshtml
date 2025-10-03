@@ -2,6 +2,7 @@
 @using Doera.Web.Features.TodoItem.ViewModels
 @model IEnumerable<TodoItemDto>
 
+<div class="col-8 d-flex flex-column gap-2">
 @if (Model.Any() == false) {
     <div class="alert alert-info">
         No items yet. Use “Add item” to create your first task in this list.
@@ -11,3 +12,7 @@
         @await Html.PartialAsync("_TodoItemCard", item)
     }
 }
+</div>
+<div class="col-4 flex-column">
+    @await Html.PartialAsync("Partials/TodoList/_TodoStatistics", Model)
+</div>

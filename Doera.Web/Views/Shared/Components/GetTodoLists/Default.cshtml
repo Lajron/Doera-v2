@@ -50,7 +50,7 @@
             <div id="collapseLists" class="accordion-collapse collapse show" aria-labelledby="headingLists" data-bs-parent="#todoSidebar">
                 <div class="accordion-body p-0">
                     <ul class="list-unstyled m-0">
-                        @foreach (var todoList in Model) {
+                        @foreach (var todoList in Model.OrderBy(l => l.Order)) {
                             var isActive = currentListId.HasValue && currentListId.Value == todoList.Id;
 
                             <li class="@(isActive ? "bg-light" : "") todo-list-item d-flex align-items-center justify-content-between px-2 py-1 hover-bg position-relative"

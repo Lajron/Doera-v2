@@ -13,7 +13,7 @@
 
 @section Tags{
     @await Html.PartialAsync("_TodoItemFilterBar", Model.Filter)
-    @await Component.InvokeAsync("GetTags", new TagFilter { TodoListId = Model.List.Id })
+    @await Component.InvokeAsync("GetTags", new { filter = new TagFilter { TodoListId = Model.List.Id } })
 }
 
 <div class="container py-3">
@@ -22,15 +22,19 @@
             <h1 class="h3 m-0">@Model.List.Name</h1>
         </div>
     </div>
-    <hr class="m-0"/>
-    <div class="d-flex gap-2">
-        <div class="col-8 d-flex flex-column gap-2">
+    <div class="d-flex gap-2 flex-column">
+        <div class="d-flex">
+            <div class="col-8 d-flex flex-column gap-2">
             @await Html.PartialAsync("_TodoItemQuickCreate", new CreateTodoItemVM { TodoListId = Model.List.Id })
-            @await Component.InvokeAsync("GetTodoItems", Model.Filter)
+            </div>
+            <div class="col-4 bg-white">
+            </div>
         </div>
-        <div class="col-4 bg-white">
-            <h4 class="text-center">Statistics</h4>
+        <div class="d-flex gap-2 align-items-start">
+            @await Component.InvokeAsync("GetTodoItems", new { filter = Model.Filter })
+
         </div>
+        
     </div>
     
 </div>

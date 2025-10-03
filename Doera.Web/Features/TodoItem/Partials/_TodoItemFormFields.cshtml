@@ -2,7 +2,6 @@
 
 <input type="hidden" asp-for="TodoListId" />
 
-<div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
 <div class="mb-3">
     <label asp-for="Title" class="form-label"></label>
@@ -47,3 +46,5 @@
     <input asp-for="TagNames" class="form-control" placeholder="e.g. home, weekend, urgent" />
     <span asp-validation-for="TagNames" class="text-danger"></span>
 </div>
+
+<div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>

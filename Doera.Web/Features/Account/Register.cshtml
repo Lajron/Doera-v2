@@ -6,7 +6,7 @@
 }
 
 <div class="d-flex justify-content-center align-items-center vh-100">
-    <div class="card border-0" style="width: 350px; height: 400px;">
+    <div class="card border-0" style="width: 350px; height: 440px;">
 
         <h4 class="text-center mb-4">Register</h4>
 
@@ -17,6 +17,7 @@
 
                 <input asp-for="Email" class="form-control" placeholder="Email Address" />
                 <input asp-for="Password" type="password" class="form-control" placeholder="Password" />
+                <input asp-for="ConfirmPassword" type="password" class="form-control" placeholder="Confirm Password" />
 
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary w-100">Register</button>

@@ -1,0 +1,178 @@
+﻿@using Doera.Application.DTOs.TodoItem
+@using Doera.Core.Enums
+@model IEnumerable<TodoItemDto>
+
+@{
+    var items = (Model ?? Enumerable.Empty<TodoItemDto>()).ToList();
+    var total = items.Count;
+
+    int Count(Func<TodoItemDto, bool> p) => items.Count(p);
+
+    var completed = Count(i => i.Status == TodoStatus.Completed);
+    var archived = Count(i => i.ArchivedAt is not null);
+    var active = Count(i => i.Status != TodoStatus.Completed && i.ArchivedAt is null);
+    var donePct = total == 0 ? 0 : (int)Math.Round((double)completed / total * 100);
+
+    var withTags = Count(i => i.Tags != null && i.Tags.Any());
+
+    var today = DateTimeOffset.UtcNow.Date;
+    var overdue = Count(i => i.DueDate is { } d && i.Status != TodoStatus.Completed && d.Date < today);
+    var dueToday = Count(i => i.DueDate is { } d && d.Date == today);
+    var dueNext7 = Count(i => i.DueDate is { } d && d.Date > today && d.Date <= today.AddDays(7));
+
+    var prioGroups = items
+        .Where(i => i.Priority.HasValue && i.Priority.Value != TodoPriority.None)
+        .GroupBy(i => i.Priority!.Value)
+        .Select(g => new { Priority = g.Key, Count = g.Count() })
+        .OrderByDescending(g => g.Count)
+        .ToList();
+
+    int SafePct(int part) => total == 0 ? 0 : (int)Math.Round((double)part / total * 100);
+
+    var statusGroups = items
+        .Where(i => i.Status.HasValue && i.Status.Value != TodoStatus.None)
+        .GroupBy(i => i.Status!.Value)
+        .Select(g => new { Status = g.Key, Count = g.Count(), Pct = SafePct(g.Count()) })
+        .OrderByDescending(g => g.Count)
+        .ToList();
+
+    var earliestDue = items.Where(i => i.DueDate.HasValue).OrderBy(i => i.DueDate).FirstOrDefault()?.DueDate;
+    var latestDue = items.Where(i => i.DueDate.HasValue).OrderByDescending(i => i.DueDate).FirstOrDefault()?.DueDate;
+
+    string ShortStatus(TodoStatus s) => s switch {
+        TodoStatus.Completed => "Done",
+        TodoStatus.InProgress => "Prog",
+        TodoStatus.ToDo => "Todo",
+        TodoStatus.None => "None",
+        _ => s.ToString()
+    };
+    string PrioBadgeClass(TodoPriority p) => p switch {
+        TodoPriority.High => "text-danger",
+        TodoPriority.Medium => "text-warning",
+        TodoPriority.Low => "text-info",
+        _ => "text-danger"
+    };
+}
+
+<div class="card shadow-sm p-3 small">
+    <h6 class="text-uppercase text-muted mb-2">Stats</h6>
+
+    <!-- Top summary -->
+    <div class="d-flex justify-content-between text-center mb-2">
+        <div class="flex-fill">
+            <div class="fw-bold fs-6">@total</div>
+            <div class="text-muted text-uppercase" style="font-size:.6rem">Total</div>
+        </div>
+        <div class="flex-fill">
+            <div class="fw-bold text-success fs-6">@completed</div>
+            <div class="text-muted text-uppercase" style="font-size:.6rem">Done</div>
+        </div>
+        <div class="flex-fill">
+            <div class="fw-bold fs-6">@active</div>
+            <div class="text-muted text-uppercase" style="font-size:.6rem">Active</div>
+        </div>
+        <div class="flex-fill">
+            <div class="fw-bold text-secondary fs-6">@archived</div>
+            <div class="text-muted text-uppercase" style="font-size:.6rem">Arch</div>
+        </div>
+    </div>
+
+    <!-- Completion bar -->
+    <div class="progress mb-3" style="height:5px;">
+        <div class="progress-bar bg-success" style="width:@donePct%"></div>
+    </div>
+    <div class="d-flex justify-content-between mb-2">
+        <span class="text-muted">Done</span>
+        <span class="fw-semibold">@donePct%</span>
+    </div>
+
+    <!-- Deadlines -->
+    @if (overdue + dueToday + dueNext7 > 0) {
+        <div class="mb-3">
+            <div class="text-muted text-uppercase mb-1" style="font-size:.65rem">Deadlines</div>
+            <div class="d-flex flex-wrap gap-2">
+                @if (overdue > 0) {
+                    <span class="badge bg-danger">Over @overdue</span>
+                }
+                @if (dueToday > 0) {
+                    <span class="badge bg-primary">Today @dueToday</span>
+                }
+                @if (dueNext7 > 0) {
+                    <span class="badge bg-warning text-dark">≤7d @dueNext7</span>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Tags -->
+    @if (withTags > 0) {
+        <div class="mb-3">
+            <div class="text-muted text-uppercase mb-1" style="font-size:.65rem">Tags</div>
+            <div class="d-flex justify-content-between">
+                <span>With</span><span>@withTags (@SafePct(withTags)%)</span>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span>No Tags</span><span>@(total - withTags)</span>
+            </div>
+        </div>
+    }
+
+    <!-- Status distribution -->
+    @if (statusGroups.Count > 1) {
+        <div class="mb-3">
+            <div class="text-muted text-uppercase mb-1" style="font-size:.65rem">Status</div>
+            <div class="d-flex rounded overflow-hidden mb-1" style="height:10px;background:#eee;">
+                @foreach (var sg in statusGroups) {
+                    if (sg.Pct == 0) { continue; }
+                    var cls = sg.Status == TodoStatus.Completed ? "bg-success"
+                    : "bg-secondary";
+                    <div class="@cls" style="width:@sg.Pct%;"></div>
+                }
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var sg in statusGroups) {
+                    <span class="badge bg-light text-dark border">
+                        @ShortStatus(sg.Status) @sg.Pct%
+                    </span>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Priority -->
+    @if (prioGroups.Any()) {
+        <div class="mb-3">
+            <div class="text-muted text-uppercase mb-1" style="font-size:.65rem">Priority</div>
+            <div class="d-flex rounded overflow-hidden mb-1" style="height:10px;background:#eee;">
+                @foreach (var pg in prioGroups) {
+                    var pct = SafePct(pg.Count);
+                    if (pct == 0) continue;
+                    var cls = pg.Priority switch {
+                        TodoPriority.High => "bg-danger",
+                        TodoPriority.Medium => "bg-warning",
+                        TodoPriority.Low => "bg-info",
+                        _ => "bg-secondary"
+                    };
+                    <div class="@cls" style="width:@pct%;"></div>
+                }
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                @foreach (var pg in prioGroups) {
+                    <span class="badge bg-@PrioBadgeClass(pg.Priority)">@pg.Priority @SafePct(pg.Count)%</span>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Due Range -->
+    @if (earliestDue.HasValue || latestDue.HasValue) {
+        <div class="mb-1">
+            <div class="text-muted text-uppercase mb-1" style="font-size:.65rem">Range</div>
+            <div class="d-flex justify-content-between">
+                <span>@(earliestDue?.LocalDateTime.ToShortDateString() ?? "-")</span>
+                <span class="mx-1">→</span>
+                <span>@(latestDue?.LocalDateTime.ToShortDateString() ?? "-")</span>
+            </div>
+        </div>
+    }
+</div>

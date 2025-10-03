@@ -1,4 +1,5 @@
 using Doera.Application.Abstractions.Results;
+using Doera.Application.Interfaces;
 using Doera.Application.Interfaces.Identity;
 using Doera.Core.Entities;
 using Doera.Core.Interfaces;
@@ -11,7 +12,8 @@ namespace Doera.Infrastructure.Identity {
     internal class IdentityService(
         UserManager<User> userManager,
         SignInManager<User> signInManager,
-        IUnitOfWork _uow
+        IUnitOfWork _uow,
+        IEmailSender _emailSender
     ) : IIdentityService {
 
         public async Task<Result<Guid>> RegisterAsync(string email, string password) {
@@ -41,7 +43,10 @@ namespace Doera.Infrastructure.Identity {
                     Order = 0
                 }
             );
+
             await _uow.CompleteAsync();
+
+            await _emailSender.SendEmailAsync(email, "Welcome to Doera", "<h1>Welcome to Doera!</h1><p>Your account has been successfully created.</p>");
 
             return user.Id;
         }

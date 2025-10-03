@@ -1,7 +1,8 @@
+using Doera.Application.Extensions;
+using Doera.Application.Interfaces.Caching;
 using Doera.Core.Entities;
 using Doera.Infrastructure.Data;
 using Doera.Infrastructure.Extensions;
-using Doera.Application.Extensions;
 using Doera.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +21,9 @@ builder.Services.AddControllersWithViews()
         TimeOut = 5000
     });
 
+// Add ElmahIo monitoring
+builder.Services.AddElmahIoMonitor(builder.Configuration, builder.Environment);
+
 // Configure Entity Framework and SQL Server
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SqlConnection"));
@@ -33,7 +37,6 @@ builder.Services.AddIdentity<User, IdentityRole<Guid>>(options => options.SignIn
 
 builder.Services.ConfigureApplicationCookie(options => {
     options.LoginPath = "/Account/Login";
-    options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
 // Infrastructure services
@@ -41,8 +44,14 @@ builder.Services.AddInfrastructureLayer();
 
 // Application services
 builder.Services.AddApplicationLayer();
+builder.Services.AddApplicationValidation();
+
+builder.Services.AddMemoryCache();
+builder.Services.AddAppCaching();
 
 var app = builder.Build();
+
+app.InitializeDatabase();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment()) {
@@ -52,9 +61,11 @@ if (app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Error");
     app.UseStatusCodePagesWithReExecute("/Error/{0}");
 
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    app.UseElmahIoMonitor();
+
     app.UseHsts();
 }
+
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
