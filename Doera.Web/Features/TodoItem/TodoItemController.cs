@@ -1,8 +1,10 @@
-﻿using Doera.Application.DTOs.TodoItem.Requests;
+﻿using Doera.Application.DTOs.TodoItem;
+using Doera.Application.DTOs.TodoItem.Requests;
 using Doera.Application.Interfaces;
 using Doera.Application.Interfaces.Services;
 using Doera.Web.Extensions;
 using Doera.Web.Features.TodoItem.ViewModels;
+using Doera.Web.Mapping;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
@@ -27,7 +29,7 @@ namespace Doera.Web.Features.TodoItem {
         [HttpPost("Create")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([FromForm] CreateTodoItemVM model) {
-            if (!ModelState.IsValid) 
+            if (!ModelState.IsValid)
                 return View(nameof(Create), model);
 
             var request = new CreateTodoItemRequest {
@@ -48,6 +50,49 @@ namespace Doera.Web.Features.TodoItem {
             }
 
             return RedirectToAction("Index", "TodoList", new { id = model.TodoListId });
+        }
+
+
+        [HttpGet("Edit/{id:guid}")]
+        public async Task<IActionResult> Edit(Guid id) {
+            var dtoResult = await _queryDispatcher.DispatchAsync<GetTodoItemByIdRequest, TodoItemDto>(
+                new GetTodoItemByIdRequest { Id = id });
+
+            if (!dtoResult.Succeeded || dtoResult.Value is null)
+                return NotFound();
+
+            var vm = dtoResult.Value.ToEditVM();
+            return View(vm);
+        }
+
+        [HttpPost("Edit/{id:guid}")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(Guid id, [FromForm] EditTodoItemVM model) {
+            if (id != model.Id) return BadRequest();
+            if (!ModelState.IsValid)
+                return View(nameof(Edit), model);
+
+            var request = model.ToUpdateDto();
+            var result = await _todoItemService.UpdateAsync(request);
+            if (!result.Succeeded) {
+                ModelState.AddResultErrors(result.Errors);
+                return View(nameof(Edit), model);
+            }
+
+            return RedirectToAction("Index", "TodoList", new { id = model.TodoListId });
+        }
+
+        [HttpPost("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(Guid listId, Guid itemId) {
+            var result = await _todoItemService.DeleteAsync(itemId);
+
+            if (!result.Succeeded) {
+                // Toaster error to add
+                return RedirectToAction("Index", "TodoList", new { id = listId });
+            }
+            return RedirectToAction("Index", "TodoList", new { id = listId });
+
         }
     }
 }

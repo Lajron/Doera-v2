@@ -1,6 +1,7 @@
 using Doera.Application.Abstractions.Results;
 using Doera.Application.Interfaces.Identity;
 using Doera.Core.Entities;
+using Doera.Core.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using System;
 using System.Linq;
@@ -9,7 +10,8 @@ using System.Threading.Tasks;
 namespace Doera.Infrastructure.Identity {
     internal class IdentityService(
         UserManager<User> userManager,
-        SignInManager<User> signInManager
+        SignInManager<User> signInManager,
+        IUnitOfWork _uow
     ) : IIdentityService {
 
         public async Task<Result<Guid>> RegisterAsync(string email, string password) {
@@ -32,6 +34,14 @@ namespace Doera.Infrastructure.Identity {
             if (!create.Succeeded)
                 return Errors.Identity.RegistrationFailed();
 
+            await _uow.TodoLists.AddAsync(
+                new TodoList {
+                    Name = "My Tasks",
+                    UserId = user.Id,
+                    Order = 0
+                }
+            );
+            await _uow.CompleteAsync();
 
             return user.Id;
         }

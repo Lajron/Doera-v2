@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Doera.Web.Features.TodoItem.ViewModels {
     public record EditTodoItemVM {
-        [Required]
+        [Required] 
         public Guid Id { get; init; }
 
         [Required]
@@ -26,7 +26,7 @@ namespace Doera.Web.Features.TodoItem.ViewModels {
         [DataType(DataType.DateTime)]
         public DateTimeOffset? DueDate { get; init; }
 
-        [Required]
+        [Required] 
         public Guid TodoListId { get; init; }
 
         [Display(Name = "Tags (comma-separated)")]

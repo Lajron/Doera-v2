@@ -1,0 +1,32 @@
+﻿@using Doera.Web.ViewModels
+@model BreadcrumbsVM?
+
+@{
+    var segs = Model?.Segments ?? Array.Empty<BreadcrumbSegment>();
+}
+
+<div class="container py-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <!-- Always render Dashboard first -->
+            <li class="breadcrumb-item">
+                <a asp-controller="Home" asp-action="Index" class="text-decoration-none text-muted">Dashboard</a>
+            </li>
+
+            @for (var i = 0; i < segs.Length; i++) {
+                var seg = segs[i];
+                var isLast = i == segs.Length - 1;
+
+                if (!string.IsNullOrWhiteSpace(seg.Url) && !isLast && !seg.Active) {
+                    <li class="breadcrumb-item">
+                        <a href="@seg.Url" class="text-decoration-none text-muted">@seg.Text</a>
+                    </li>
+                } else {
+                    <li class="breadcrumb-item active" aria-current="page">
+                        <span class="fw-semibold text-dark">@seg.Text</span>
+                    </li>
+                }
+            }
+        </ol>
+    </nav>
+</div>

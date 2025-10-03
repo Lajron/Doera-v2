@@ -1,20 +1,25 @@
+@using Doera.Core.Enums
+@using Doera.Web.ViewModels
 @model EditTodoItemVM
 
 @{
     ViewData["Title"] = "Edit item";
+    ViewData["Breadcrumbs"] = new BreadcrumbsVM(
+        new BreadcrumbSegment("List", Url.Action("Index","TodoList", new { id = Model.TodoListId })), // text replaced by sidebar name via JS
+        new BreadcrumbSegment(Model.Title),
+        new BreadcrumbSegment("Edit", Active: true)
+    );
 }
 
 <div class="container py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h1 class="h4 m-0">Edit item</h1>
-        <a asp-controller="TodoList" asp-action="Index" asp-route-id="@Model.TodoListId" class="btn btn-sm btn-outline-secondary">
-            Back to list
-        </a>
+        <a asp-controller="TodoList" asp-action="Index" asp-route-id="@Model.TodoListId" class="btn btn-sm btn-outline-secondary">Back to list</a>
     </div>
 
     <div class="card">
         <div class="card-body">
-            <form asp-controller="TodoItem" asp-action="Edit" method="post">
+            <form asp-controller="TodoItem" asp-action="Edit" asp-route-id="@Model.Id" method="post">
                 @Html.AntiForgeryToken()
 
                 <input type="hidden" asp-for="Id" />
@@ -62,7 +67,7 @@
 
                 <div class="mb-3 mt-3">
                     <label asp-for="TagNames" class="form-label">Tags (comma-separated)</label>
-                    <input asp-for="TagNames" class="form-control" placeholder="e.g. home, weekend, urgent" />
+                    <input asp-for="TagNames" class="form-control" />
                     <span asp-validation-for="TagNames" class="text-danger"></span>
                 </div>
 

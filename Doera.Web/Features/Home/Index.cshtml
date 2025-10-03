@@ -1,5 +1,19 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Doera.Application.DTOs.Tags
+@using Doera.Web.ViewModels
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+@section Tags {
+    @await Component.InvokeAsync("GetTags", new TagFilter())
+}
+
+@section Breadcrumbs {
+    @await Html.PartialAsync("_Breadcrumbs", 
+        new BreadcrumbsVM(
+            new BreadcrumbSegment("Dashboard", Url.Action("Index","Home"))
+        )
+    )
 }
 
 <div class="text-center">

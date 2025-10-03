@@ -18,12 +18,14 @@ namespace Doera.Application.Abstractions.Results {
             public static Error NotFound() => new("TodoList.NotFound", "The specified todo list was not found.", ErrorKind.NotFound);
             public static Error CreateFailed() => new("TodoList.CreateFailed", "Could not create the list.", ErrorKind.Failed);
             public static Error UpdateFailed() => new("TodoList.UpdateFailed", "Could not update the list.", ErrorKind.Failed);
+            public static Error DeleteFailed() => new("TodoList.DeleteFailed", "Could not delete the list.", ErrorKind.Failed);
         }
 
         public static class TodoItem {
             public static Error NotFound() => new("TodoItem.NotFound", "The specified todo item was not found.", ErrorKind.NotFound);
             public static Error CreateFailed() => new("TodoItem.CreateFailed", "Could not create the item.", ErrorKind.Failed);
             public static Error UpdateFailed() => new("TodoItem.UpdateFailed", "Could not update the item.", ErrorKind.Failed);
+            public static Error DeleteFailed() => new("TodoItem.DeleteFailed", "Could not delete the item.", ErrorKind.Failed);
         }
 
         public static class Identity {

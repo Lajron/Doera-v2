@@ -1,0 +1,56 @@
+﻿@using Doera.Web.ViewModels
+@{
+    var crumbs = ViewData["Breadcrumbs"] as BreadcrumbsVM;
+}
+
+<nav class="navbar py-0 border-bottom border-2 border-secondary bg-body">
+    <div class="container-fluid d-flex align-items-center justify-content-between">
+
+        <!-- Hamburger & Breadcrumbs left -->
+        <div>
+            <button id="sidebarToggle" type="button" class="btn btn-link p-0" aria-label="Toggle sidebar">
+                <i class="bi bi-list fs-3"></i>
+            </button>
+            <div>
+                @await Html.PartialAsync("_Breadcrumbs", crumbs) 
+
+            </div>
+        </div>
+
+        <!-- Right side -->
+        <ul class="navbar-nav d-flex flex-row align-items-center gap-3 mb-0">
+            @if (SignInManager.IsSignedIn(User)) {
+                <!-- Messages -->
+                <li class="nav-item">
+                    <a class="nav-link text-primary fs-4" href="#">
+                        <i class="bi bi-chat-left-text"></i>
+                    </a>
+                </li>
+
+                <!-- Notifications -->
+                <li class="nav-item">
+                    <a class="nav-link text-primary fs-4" href="#">
+                        <i class="bi bi-bell"></i>
+                    </a>
+                </li>
+
+                <!-- Gear / Settings -->
+                <li class="nav-item">
+                    <a class="nav-link text-primary fs-4" asp-area="Identity" asp-page="/Account/Manage/Index" title="Settings">
+                        <i class="bi bi-gear"></i>
+                    </a>
+                </li>
+
+                <!-- Logout -->
+                <li class="nav-item">
+                    <form id="logoutForm" class="d-inline" asp-controller="Account" asp-action="Logout">
+                        <button type="submit" class="nav-link text-dark p-0 fs-4" title="Logout">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
+                    </form>
+                </li>
+            }
+        </ul>
+
+    </div>
+</nav>

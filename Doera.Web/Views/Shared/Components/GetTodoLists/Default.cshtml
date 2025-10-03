@@ -1,0 +1,108 @@
+@using Doera.Application.DTOs.TodoList
+@using Doera.Web.Features.TodoList.ViewModels
+@model IEnumerable<TodoListDto>
+
+@{
+    Guid? currentListId = null;
+
+    var route = ViewContext.RouteData.Values;
+    var controller = route["controller"]?.ToString();
+    var action = route["action"]?.ToString();
+
+    // Primary: when on /TodoList/{id}
+    if (string.Equals(controller, "TodoList", StringComparison.OrdinalIgnoreCase)) {
+        var idStr = route["id"]?.ToString();
+        if (Guid.TryParse(idStr, out var lid)) currentListId = lid;
+    }
+
+    // Fallback A: ViewData from pages that know the list id (e.g. TodoItem Edit)
+    if (currentListId is null && ViewContext.ViewData["CurrentListId"] is Guid vdId) {
+        currentListId = vdId;
+    }
+
+    // Fallback B: query string (?listId=...)
+    if (currentListId is null) {
+        var qs = Context?.Request?.Query["listId"].FirstOrDefault();
+        if (Guid.TryParse(qs, out var qid)) currentListId = qid;
+    }
+}
+
+<div class="p-0">
+    <!-- Quick create -->
+        <div id="sidebar-create-list" class="mb-2">
+            @await Html.PartialAsync("_SidebarAddTodoList", new CreateTodoListVM())
+        </div>
+
+    <div class="accordion" id="todoSidebar">
+        <div class="accordion-item border-0">
+            <h2 class="accordion-header" id="headingLists">
+                <button class="accordion-button p-1 d-flex align-items-center fw-semibold text-dark bg-white"
+                        type="button"
+                        data-bs-toggle="collapse" data-bs-target="#collapseLists"
+                        aria-expanded="true" aria-controls="collapseLists">
+                    <i class="bi bi-folder me-2 text-primary fs-"></i>
+                    <span class="text-uppercase small">Lists</span>
+                </button>
+            </h2>
+
+
+            <div id="collapseLists" class="accordion-collapse collapse show" aria-labelledby="headingLists" data-bs-parent="#todoSidebar">
+                <div class="accordion-body p-0">
+                    <ul class="list-unstyled m-0">
+                        @foreach (var todoList in Model) {
+                            var isActive = currentListId.HasValue && currentListId.Value == todoList.Id;
+
+                            <li class="@(isActive ? "bg-light" : "") todo-list-item d-flex align-items-center justify-content-between px-2 py-1 hover-bg position-relative"
+                                data-list-id="@todoList.Id" data-list-name="@todoList.Name" data-order="@todoList.Order" style="font-size: 0.95rem;">
+                                <div class="d-flex align-items-center gap-2 flex-grow-1 min-width-0">
+                                    <!-- REPLACED order number with inline edit icon -->
+                                    <a asp-controller="TodoList" asp-action="Edit" asp-route-id="@todoList.Id"
+                                       class="left-action btn btn-link btn-sm p-0 text-secondary"
+                                       title="Edit list title"
+                                       onclick="event.stopPropagation();">
+                                        <i class="bi bi-pencil-square fs-6"></i>
+                                    </a>
+
+                                    <!-- Title link -->
+                                    <a class="text-decoration-none @(isActive ? "text-primary" : "text-body")  fw-semibold text-truncate flex-grow-1"
+                                       style="max-width: calc(100% - 3rem);"
+                                       asp-controller="TodoList" asp-action="Index" asp-route-id="@todoList.Id"
+                                       title="@todoList.Name">
+                                        @todoList.Name
+                                    </a>
+                                </div>
+
+                                <!-- Right-side actions (show on hover) -->
+                                <div class="list-actions d-flex align-items-center gap-1 ms-2 flex-shrink-0">
+                                    <form asp-controller="TodoList"
+                                          asp-action="Delete"
+                                          asp-route-id="@todoList.Id"
+                                          asp-route-returnUrl="@(Url.Action("Index","Home"))"
+                                          method="post"
+                                          class="d-inline"
+                                          onclick="event.stopPropagation();"
+                                          onsubmit="return confirm('Delete this list? All its items will be removed.');">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-link btn-sm p-0 text-danger" title="Delete list">
+                                            <i class="bi bi-trash3 fs-6"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </li>
+                        }
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-bg:hover { background-color: rgba(0,0,0,0.03); }
+    .text-truncate { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .min-width-0 { min-width: 0; }
+
+    /* Hide actions by default; reveal on hover */
+    .todo-list-item .list-actions { opacity: 0; transition: opacity .15s ease-in-out; }
+    .todo-list-item:hover .list-actions { opacity: 1; }
+</style>

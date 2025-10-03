@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 
 namespace Doera.Infrastructure.Queries.TodoListHandlers {
+    // Don't need this one anymore
     internal class GetTodoListByIdHandler(
             ApplicationDbContext _db,
             ICurrentUser _currentUser
@@ -22,28 +23,10 @@ namespace Doera.Infrastructure.Queries.TodoListHandlers {
             var dto = await _db.TodoLists
                 .Where(l => l.Id == query.Id && l.UserId == userId)
                 .Select(l => new TodoListDto {
-                        Id = l.Id,
-                        Name = l.Name,
-                        Order = l.Order,
-                        TodoItems = l.TodoItems
-                            .OrderBy(i => i.Order)
-                            .Select(i => new TodoItemSummaryDto {
-                                Id = i.Id,
-                                Title = i.Title,
-                                Description = i.Description,
-                                Order = i.Order,
-                                Status = i.Status,
-                                Priority = i.Priority,
-                                StartDate = i.StartDate,
-                                DueDate = i.DueDate,
-                                IsArchived = i.ArchivedAt.HasValue,
-                                Tags = i.TodoItemTags.Select(t => new TagDto {
-                                    Id = t.Tag!.Id,
-                                    DisplayName = t.Tag!.DisplayName
-                                })
-                            })
+                    Id = l.Id,
+                    Name = l.Name,
+                    Order = l.Order
                 })
-                .AsSplitQuery()
                 .FirstOrDefaultAsync(cancellationToken);
 
             if (dto is null)

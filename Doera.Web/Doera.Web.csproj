@@ -28,10 +28,14 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
+    <Folder Include="Features\TodoList\Components\" />
     <Folder Include="Features\TodoList\Mapping\" />
+    <Folder Include="Features\TodoList\Partials\" />
     <Folder Include="Models\Account\" />
     <Folder Include="Views\Account\" />
     <Folder Include="Views\Home\" />
+    <Folder Include="Views\Shared\Partials\TodoList\" />
+    <Folder Include="wwwroot\img\" />
   </ItemGroup>
 
 </Project>

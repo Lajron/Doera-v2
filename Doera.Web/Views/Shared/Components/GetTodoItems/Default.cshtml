@@ -1,0 +1,12 @@
+﻿@using Doera.Application.DTOs.TodoItem
+@model IEnumerable<TodoItemDto>
+
+@if (Model.Any() == false) {
+    <div class="alert alert-info">
+        No items yet. Use “Add item” to create your first task in this list.
+    </div>
+} else {
+    @foreach (var item in Model) {
+        @await Html.PartialAsync("_TodoItemCard", item)
+    }
+}

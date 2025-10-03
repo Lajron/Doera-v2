@@ -1,0 +1,40 @@
+﻿<div class="">
+    <a class="text-decoration-none fs-4 fw-semibold text-primary" asp-controller="Home" asp-action="Index">
+        <i class="bi bi-box-seam"></i>
+        DOLIGENT
+    </a>
+</div>
+
+@await Component.InvokeAsync("GetTodoLists")
+
+
+
+@* @{
+    var title = ViewData["Title"]?.ToString() ?? "";
+    string? userId = UserManager.GetUserId(User);
+    Guid? currentUserId = userId is null ? null : Guid.Parse(userId);
+}
+
+<div class="card border-0 bg-body px-0 gap-1">
+    <a asp-controller="Feed" asp-action="Index" asp-route-scope="Personal"
+       class="d-flex align-items-center gap-2 text-decoration-none px-3 py-2
+              @(title == "My Feed" ? "bg-primary text-white" : "text-body hover-bg-light")">
+        <i class="bi bi-house fs-5"></i>
+        <span class="fw-medium">Home</span>
+    </a>
+    <a asp-controller="Feed" asp-action="Index" asp-route-scope="Global"
+       class="d-flex align-items-center gap-2 text-decoration-none px-3 py-2
+              @(title == "Discover Feed" ? "bg-primary text-white" : "text-body hover-bg-light")">
+        <i class="bi bi-fire fs-5"></i>
+        <span class="fw-medium">Discover</span>
+    </a>
+</div>
+<hr class="border-primary border-1 my-1"/>
+@if (SignInManager.IsSignedIn(User)) {
+    <vc:personal-tags current-user-id="@currentUserId"></vc:personal-tags>
+}
+<style>
+    .hover-bg-light:hover {
+        background-color: rgba(0,0,0,0.05);
+    }
+</style> *@

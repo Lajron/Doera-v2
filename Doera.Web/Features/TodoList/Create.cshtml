@@ -1,7 +1,41 @@
-﻿@model CreateTodoListVM
-@{
-    ViewData["Title"] = "Create Todo List";
+﻿@using Doera.Web.Features.TodoList.ViewModels
+@model CreateTodoListVM
+
+@section Breadcrumbs {
+    @await Html.PartialAsync("_Breadcrumbs", 
+        new BreadcrumbsVM(
+            new BreadcrumbSegment("Dashboard", Url.Action("Index","Home")),
+            new BreadcrumbSegment("List"),
+            new BreadcrumbSegment("Create", Url.Action("Create","TodoList"), true)
+        )
+    )
 }
 
-<h1>Create Todo List</h1>
-<partial name="_CreateListForm" model="@Model" />
+<div class="d-flex flex-column justify-content-center align-items-center" style="min-height: 60vh;">
+    <!-- Hero / icon -->
+    <div class="text-center mb-3">
+        <i class="bi bi-list-check fs-2 text-primary"></i>
+        <h2 class="mt-2 mb-1" style="font-size:1.5rem;">Create a New Todo List</h2>
+        <p class="text-muted small mb-0">Start organizing your tasks below</p>
+    </div>
+
+    <!-- Form card -->
+    <div class="card p-3 shadow-sm" style="width: 100%; max-width: 360px;">
+        <form asp-controller="TodoList" asp-action="Create" method="post" class="d-flex flex-column gap-2 align-items-center">
+            @Html.AntiForgeryToken()
+
+            <div class="w-100 mb-2">
+                <input asp-for="Title" class="form-control form-control-sm text-center" placeholder="New list" />
+                <span asp-validation-for="Title" class="text-danger small d-block mt-1 text-center"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-sm w-100">
+                <i class="bi bi-plus-lg me-1"></i> Create
+            </button>
+        </form>
+
+        <p class="text-muted small mt-2 mb-0 text-center">
+            Keep your list titles short and clear.
+        </p>
+    </div>
+</div>

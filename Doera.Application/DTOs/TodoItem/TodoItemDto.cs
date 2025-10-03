@@ -6,6 +6,7 @@ using System.Collections.Generic;
 namespace Doera.Application.DTOs.TodoItem {
     public record TodoItemDto {
         public Guid Id { get; init; }
+        public Guid TodoListId { get; init; }    
         public string Title { get; init; } = string.Empty;
         public string? Description { get; init; }
         public int Order { get; init; }

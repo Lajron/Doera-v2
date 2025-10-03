@@ -1,19 +1,23 @@
-﻿@model TodoListDto
+﻿@using Doera.Application.DTOs.Tags
+@using Doera.Application.DTOs.TodoItem
+@using Doera.Web.ViewModels
+@model TodoListDto
 
 @{
     ViewData["Title"] = Model.Name;
-    var total = Model.TodoItems?.Count() ?? 0;
-    var archived = Model.TodoItems?.Count(i => i.IsArchived) ?? 0;
+    ViewData["Breadcrumbs"] = new BreadcrumbsVM(
+        new BreadcrumbSegment(Model.Name, Active: true)
+    );
+}
+
+@section Tags{
+    @await Component.InvokeAsync("GetTags", new TagFilter { TodoListId = Model.Id })
 }
 
 <div class="container py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <div>
             <h1 class="h3 m-0">@Model.Name</h1>
-            <small class="text-muted">
-                List Id: <code>@Model.Id</code> • Order: @Model.Order • Items: @total
-                @(archived > 0 ? $" (Archived: {archived})" : "")
-            </small>
         </div>
         <div class="btn-group">
             <a asp-controller="TodoItem" asp-action="Create" asp-route-listId="@Model.Id" class="btn btn-sm btn-primary">
@@ -22,74 +26,7 @@
             <a asp-controller="Home" asp-action="Index" class="btn btn-sm btn-outline-secondary">Back</a>
         </div>
     </div>
-
-    @if (total == 0)
-    {
-        <div class="alert alert-info">
-            No items yet. Use “Add item” to create your first task in this list.
-        </div>
-    }
-    else
-    {
-        <div class="row row-cols-1 row-cols-md-1 g-3">
-            @foreach (var item in Model.TodoItems!.OrderBy(i => i.Order))
-            {
-                var overdue = item.DueDate.HasValue && item.DueDate.Value < DateTimeOffset.UtcNow && !item.IsArchived;
-
-                <div class="col">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex align-items-start justify-content-between">
-                                <h5 class="card-title mb-1">@item.Title</h5>
-                                <span class="badge text-secondary">#@item.Order</span>
-                            </div>
-
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <p class="card-text text-muted mb-2">@item.Description</p>
-                            }
-
-                            <div class="d-flex flex-wrap gap-2 mb-2">
-                                    <span class="badge text-muted border">Status: @item.Status</span>
-                                    <span class="badge text-muted border">Priority: @item.Priority</span>
-                                @if (item.StartDate is not null)
-                                {
-                                    <span class="badge text-muted border">Start: @item.StartDate:dd MMM yyyy</span>
-                                }
-                                @if (item.DueDate is not null)
-                                {
-                                    <span class="badge @(overdue ? "text-bg-danger" : "text-muted border")">
-                                        Due: @item.DueDate:dd MMM yyyy
-                                    </span>
-                                }
-                                @if (item.IsArchived)
-                                {
-                                    <span class="badge text-bg-warning">Archived</span>
-                                }
-                            </div>
-
-                            @if (item.Tags?.Any() == true)
-                            {
-                                <div class="d-flex flex-wrap gap-1">
-                                    @foreach (var tag in item.Tags)
-                                    {
-                                        <span class="badge text-muted">@tag.DisplayName</span>
-                                    }
-                                </div>
-                            }
-                        </div>
-                        <div class="card-footer d-flex gap-2">
-                            <a asp-controller="TodoItem" asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Open</a>
-                            <a asp-controller="TodoItem" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">Edit</a>
-                            <form asp-controller="TodoItem" asp-action="Delete" asp-route-id="@item.Id" method="post" class="ms-auto">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
-                            </form>
-                           
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    }
+    <hr />
+    @await Html.PartialAsync("_TodoItemQuickCreate", new CreateTodoItemVM { TodoListId = Model.Id })
+    @await Component.InvokeAsync("GetTodoItems", new TodoItemFilter { TodoListId = Model.Id })
 </div>

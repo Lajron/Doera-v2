@@ -1,0 +1,66 @@
+@using Doera.Core.Enums
+@using Doera.Web.Features.TodoItem.ViewModels
+@model CreateTodoItemVM
+
+<form asp-controller="TodoItem" asp-action="Create" method="post" class="card card-body p-2 mb-0">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="TodoListId" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-1 small"></div>
+
+    <div class="d-flex gap-2 align-items-start">
+        <div class="flex-grow-1">
+            <label asp-for="Title" class="visually-hidden"></label>
+            <input asp-for="Title" class="form-control form-control-sm" placeholder="Quick add task..." />
+            <span asp-validation-for="Title" class="text-danger small"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-sm">Add</button>
+
+        <button class="btn btn-outline-secondary btn-sm"
+                type="button"
+                data-bs-toggle="collapse"
+                data-bs-target="#adv-@Model.TodoListId"
+                aria-expanded="false"
+                aria-controls="adv-@Model.TodoListId">
+            Advanced
+        </button>
+    </div>
+
+    <div class="collapse mt-2" id="adv-@Model.TodoListId">
+        <div class="row g-2">
+            <div class="col-12">
+                <label asp-for="Description" class="form-label form-label-sm mb-0">Description</label>
+                <textarea asp-for="Description" rows="2" class="form-control form-control-sm"></textarea>
+                <span asp-validation-for="Description" class="text-danger small"></span>
+            </div>
+
+            <div class="col-6">
+                <label asp-for="Status" class="form-label form-label-sm mb-0">Status</label>
+                <select asp-for="Status" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<TodoStatus>()"></select>
+                <span asp-validation-for="Status" class="text-danger small"></span>
+            </div>
+            <div class="col-6">
+                <label asp-for="Priority" class="form-label form-label-sm mb-0">Priority</label>
+                <select asp-for="Priority" class="form-select form-select-sm" asp-items="Html.GetEnumSelectList<TodoPriority>()"></select>
+                <span asp-validation-for="Priority" class="text-danger small"></span>
+            </div>
+
+            <div class="col-6">
+                <label asp-for="StartDate" class="form-label form-label-sm mb-0">Start</label>
+                <input asp-for="StartDate" type="datetime-local" class="form-control form-control-sm" />
+                <span asp-validation-for="StartDate" class="text-danger small"></span>
+            </div>
+            <div class="col-6">
+                <label asp-for="DueDate" class="form-label form-label-sm mb-0">Due</label>
+                <input asp-for="DueDate" type="datetime-local" class="form-control form-control-sm" />
+                <span asp-validation-for="DueDate" class="text-danger small"></span>
+            </div>
+
+            <div class="col-12">
+                <label asp-for="TagNames" class="form-label form-label-sm mb-0">Tags (comma-separated)</label>
+                <input asp-for="TagNames" class="form-control form-control-sm" placeholder="e.g. home, urgent" />
+                <span asp-validation-for="TagNames" class="text-danger small"></span>
+            </div>
+        </div>
+    </div>
+</form>

@@ -13,17 +13,18 @@ namespace Doera.Infrastructure.Repositories {
             ICurrentUser _currentUser
         ) : BaseRepository<Tag>(_db), ITagRepository {
 
-        public async Task CleanupOrphanedTagsAsync() {
+        public async Task ExecuteDeleteUnusedTagsAsync() {
             await _dbSet
                 .Where(tag => !tag.TodoItemTags.Any())
                 .ExecuteDeleteAsync();
         }
 
         public async Task<ICollection<TodoItemTag>> ResolveTagsAsync(IEnumerable<string> itemTags) {
-            if (itemTags == null || !itemTags.Any())
+            
+            if (itemTags.Any() is false)
                 return [];
-            var userId = _currentUser.RequireUserId();
 
+            var userId = _currentUser.RequireUserId();
 
             var incomingMap = itemTags
                 .Select(t => t.TrimStart('#').Trim())

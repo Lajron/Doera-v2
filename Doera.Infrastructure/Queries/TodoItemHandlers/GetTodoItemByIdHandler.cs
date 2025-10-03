@@ -27,6 +27,7 @@ namespace Doera.Infrastructure.Queries.TodoItemHandlers {
                 .Where(i => i.Id == query.Id && i.UserId == userId)
                 .Select(i => new TodoItemDto {
                     Id = i.Id,
+                    TodoListId = i.TodoListId,
                     Title = i.Title,
                     Description = i.Description,
                     Order = i.Order,

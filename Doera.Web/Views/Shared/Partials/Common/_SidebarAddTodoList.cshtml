@@ -1,0 +1,14 @@
+﻿@using Doera.Web.Features.TodoList.ViewModels
+@model CreateTodoListVM
+
+<!-- Add list inline form -->
+<form asp-controller="TodoList" asp-action="Create" method="post" class="d-flex gap-1 mb-0">
+    @Html.AntiForgeryToken()
+    <input asp-for="Title"
+           class="form-control form-control-sm flex-grow-1"
+           placeholder="New list"
+           style="min-width: 0;" />
+    <button type="submit" class="btn btn-sm btn-primary">
+        <i class="bi bi-plus-lg"></i>
+    </button>
+</form>

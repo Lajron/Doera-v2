@@ -1,4 +1,5 @@
 using Doera.Application.Abstractions.Results;
+using Doera.Application.DTOs.Common;
 using Doera.Application.DTOs.TodoItem.Requests;
 using Doera.Application.Interfaces.Identity;
 using Doera.Application.Interfaces.Services;
@@ -8,19 +9,19 @@ using Doera.Core.Interfaces;
 
 namespace Doera.Application.Services {
     public class TodoItemService(
-            IUnitOfWork _uof,
+            IUnitOfWork _uow,
             ICurrentUser _currentUser
         ) : ITodoItemService {
         public async Task<Result<Guid>> CreateAsync(CreateTodoItemRequest request) {
             var userId = _currentUser.RequireUserId();
 
-            var todoList = await _uof.TodoLists.FindByIdAsync(request.TodoListId);
+            var todoList = await _uow.TodoLists.FindByIdAsync(request.TodoListId);
 
             if (todoList is null) return Errors.TodoList.NotFound();
 
             if (todoList.UserId != userId) return Errors.Common.AccessDenied();
 
-            var itemOrder = await _uof.TodoItems.GetCountForListAsync(request.TodoListId);
+            var itemOrder = await _uow.TodoItems.GetCountForListAsync(request.TodoListId);
 
             var todoItem = new TodoItem {
                 TodoListId = request.TodoListId,
@@ -32,13 +33,13 @@ namespace Doera.Application.Services {
                 Priority = request.Priority,
                 StartDate = request.StartDate,
                 DueDate = request.DueDate,
-                TodoItemTags = await _uof.Tags.ResolveTagsAsync(request.TagNames)
+                TodoItemTags = await _uow.Tags.ResolveTagsAsync(request.TagNames)
             };
 
-            await _uof.TodoItems.AddAsync(todoItem);
-            var result = await _uof.CompleteAsync();
+            await _uow.TodoItems.AddAsync(todoItem);
+            var result = await _uow.CompleteAsync();
 
-            if (result <= 0) return Errors.TodoItem.CreateFailed();
+            if (result == 0) return Errors.TodoItem.CreateFailed();
 
             return todoItem.Id;
         }
@@ -50,7 +51,7 @@ namespace Doera.Application.Services {
 
             var spec = new TodoItemSpecification(request.Id, userId, includeTags: modifyTags);
 
-            var todoItem = await _uof.TodoItems.FindAsync(spec);
+            var todoItem = await _uow.TodoItems.FindAsync(spec);
 
             if (todoItem is null) return Errors.TodoItem.NotFound();
 
@@ -65,27 +66,80 @@ namespace Doera.Application.Services {
 
             todoItem.UpdatedAt = DateTimeOffset.UtcNow;
 
-            await _uof.CompleteAsync();
-
-            await _uof.Tags.CleanupOrphanedTagsAsync();
-
-            return Result.Success();
+            try {
+                await _uow.ExecuteTransactionAsync(
+                    Try: async () => {
+                        await _uow.CompleteAsync();
+                        await _uow.Tags.ExecuteDeleteUnusedTagsAsync();
+                    }
+                );
+                return Result.Success();
+            } catch {
+                return Errors.TodoItem.UpdateFailed();
+            }
         }
 
         public async Task<Result> DeleteAsync(Guid todoItemId) {
             var userId = _currentUser.RequireUserId();
 
-            var todoItem = await _uof.TodoItems.FindByIdAsync(todoItemId);
+            var todoItem = await _uow.TodoItems.FindByIdAsync(todoItemId);
 
             if (todoItem is null) return Errors.TodoItem.NotFound();
 
             if (todoItem.UserId != userId) return Errors.Common.AccessDenied();
 
-            _uof.TodoItems.Remove(todoItem);
+            _uow.TodoItems.Remove(todoItem);
 
-            await _uof.CompleteAsync();
+            await _uow.CompleteAsync();
 
-            await _uof.Tags.CleanupOrphanedTagsAsync();
+            try {
+                await _uow.ExecuteTransactionAsync(async () => {
+                    _uow.TodoItems.Remove(todoItem);     
+                    await _uow.CompleteAsync();           
+                    await _uow.Tags.ExecuteDeleteUnusedTagsAsync(); 
+                });
+                return Result.Success();
+            } catch {
+                return Errors.TodoItem.DeleteFailed();
+            }
+        }
+
+        public async Task<Result> ReorderAsync(ReorderItemRequest request) {
+            var userId = _currentUser.RequireUserId();
+            var requestIds = request.ReorderRequests.Select(r => r.Id).ToList();
+
+            if (requestIds.Count != requestIds.Distinct().Count())
+                return Errors.Common.Validation("Duplicate Todo Item IDs in request.");
+
+            var todoItems = await _uow.TodoItems.GetAllForUserAsync(userId, request.TodoListId, requestIds);
+
+            if (todoItems.Count() != requestIds.Count)
+                return Errors.Common.Validation("One or more item ids are invalid or not owned by the current user.");
+
+            try {
+                await _uow.ExecuteTransactionAsync(
+                    Try: async () => {
+                        var todoItemDict = todoItems.ToDictionary(i => i.Id, i => i);
+
+                        foreach (var reorder in request.ReorderRequests) {
+                            todoItemDict[reorder.Id].Order = reorder.NewOrder;
+                        }
+
+                        await _uow.CompleteAsync();
+                    }
+                );
+                return Result.Success();
+            } catch {
+                return Errors.Common.Failed("Could not reorder items.");
+            }
+        }
+
+        public async Task<Result> UpdateStatusAsync(UpdateTodoItemStatusRequest request) {
+            var userId = _currentUser.RequireUserId();
+
+            var result = await _uow.TodoItems.ExecuteUpdateStatusAsync(request.Id, userId, request.Status);
+
+            if (result == 0) return Errors.TodoItem.UpdateFailed();
 
             return Result.Success();
         }
@@ -94,12 +148,12 @@ namespace Doera.Application.Services {
 
         // Helper Methods 
         private async Task UpdateTagsAsync(TodoItem item, IEnumerable<string> tagNames) {
-            if (tagNames.Any() is false) {
+            var resolvedTags = await _uow.Tags.ResolveTagsAsync(tagNames);
+
+            if (resolvedTags.Count == 0) {
                 item.TodoItemTags.Clear();
                 return;
             }
-
-            var resolvedTags = await _uof.Tags.ResolveTagsAsync(tagNames);
 
             var desiredTagIds = resolvedTags.Select(l => l.Tag!.Id).ToHashSet();
             var currentTagIds = item.TodoItemTags.Select(l => l.TagId).ToHashSet();

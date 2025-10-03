@@ -4,6 +4,17 @@
     ViewData["Title"] = "Add item";
 }
 
+@section Breadcrumbs {
+    @await Html.PartialAsync("_Breadcrumbs", 
+        new BreadcrumbsVM(
+            new BreadcrumbSegment("Dashboard", Url.Action("Index","Home")),
+            new BreadcrumbSegment("List", Url.Action("Index","TodoList", new { id = Model.TodoListId })),
+            new BreadcrumbSegment("Task"),
+            new BreadcrumbSegment("Create", Url.Action("Create","TodoItem"), true)
+        )
+    )
+}
+
 <div class="container py-3">
     <div class="d-flex align-items-center justify-content-between mb-3">
         <h1 class="h4 m-0">Add item</h1>
@@ -14,8 +25,7 @@
         <div class="card-body">
             <form asp-controller="TodoItem" asp-action="Create" method="post">
                 @Html.AntiForgeryToken()
-                <partial name="_TodoItemFormFields" model="@Model" />
-                @* @await Html.PartialAsync("~/Features/TodoItem/Partials/_TodoItemFormFields.cshtml", Model) *@
+                @await Html.PartialAsync("Partials/_TodoItemFormFields.cshtml", Model)
 
                 <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary">Create</button>
