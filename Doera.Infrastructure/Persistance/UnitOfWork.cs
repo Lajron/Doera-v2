@@ -30,6 +30,8 @@ namespace Doera.Infrastructure.Persistance {
             } catch (Exception ex) {
                 await transaction.RollbackAsync();
                 if (Catch is not null) await Catch(ex);
+                // Should have added throw exception here if catch is null
+                // else throw ex;
             } finally {
                 if (Finally is not null) await Finally();
             }

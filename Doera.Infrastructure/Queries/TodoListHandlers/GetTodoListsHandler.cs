@@ -25,7 +25,7 @@ namespace Doera.Infrastructure.Queries.TodoListHandlers {
 
             var lists = await _cache.GetOrCreateAsync(
                 key,
-                async _ => await _db.TodoLists
+                async () => await _db.TodoLists
                     .Where(x => x.UserId == userId)
                     .OrderBy(x => x.Order)
                     .Select(l => new TodoListDto {
@@ -38,7 +38,7 @@ namespace Doera.Infrastructure.Queries.TodoListHandlers {
                 cancellationToken: cancellationToken
             );
 
-            return lists;
+            return lists ?? [];
         }
     }
 }

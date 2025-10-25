@@ -17,6 +17,7 @@ using Doera.Infrastructure.Queries.TodoListHandlers;
 using Doera.Infrastructure.Repositories;
 using Doera.Infrastructure.Utilities;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Doera.Infrastructure.Extensions {
@@ -39,6 +40,23 @@ namespace Doera.Infrastructure.Extensions {
             services.AddScoped<ITodoItemRepository, TodoItemRepository>();
             services.AddScoped<ITodoItemTagRepository, TodoItemTagRepository>();
             services.AddScoped<ITodoListRepository, TodoListRepository>();
+
+            //var assembly = typeof(UnitOfWork).Assembly;
+
+            //var repoTypes = assembly.GetTypes()
+            //    .Where(t => 
+            //        t.IsClass && 
+            //        !t.IsAbstract && 
+            //        t.BaseType != null && 
+            //        t.BaseType.IsGenericType &&
+            //        t.BaseType.GetGenericTypeDefinition() == typeof(BaseRepository<>)
+            //    ).ToList();
+
+            //foreach (var repo in repoTypes) {
+            //    var repoInterface = repo.GetInterfaces().First(ri => ri.Name.EndsWith("Repository"));
+            //    services.AddScoped(repoInterface, repo);
+
+            //}
             return services;
         }
 
@@ -77,6 +95,9 @@ namespace Doera.Infrastructure.Extensions {
             foreach (var impl in handlerTypes) {
                 var implInterface = impl.GetInterfaces()
                     .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == handlerInterface);
+                // Why did i add another foreach wtf was I thinking
+                // This should have just been:
+                //services.AddScoped(implInterface.First(), impl)
                 foreach (var iface in implInterface) {
                     services.AddScoped(iface, impl);
                 }

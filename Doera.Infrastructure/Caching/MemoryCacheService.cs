@@ -5,15 +5,22 @@ namespace Doera.Infrastructure.Caching {
     internal sealed class MemoryCacheService(IMemoryCache cache) : ICacheService {
         public async Task<T> GetOrCreateAsync<T>(
             string key,
-            Func<CancellationToken, Task<T>> factory,
+            Func<Task<T>> factory,
             TimeSpan? ttl = null,
             CancellationToken cancellationToken = default) {
+
+            //IMemoryCache has a GetOrCreateAsync ffs...
             if (cache.TryGetValue(key, out T? existing) && existing is not null)
                 return existing;
 
-            var created = await factory(cancellationToken);
+            var created = await factory();
             Set(key, created, ttl);
             return created;
+            //return await cache.GetOrCreateAsync(key, async entry =>
+            //{
+            //    entry.AbsoluteExpirationRelativeToNow = ttl;
+            //    return await factory();
+            //});
         }
 
         public bool TryGet<T>(string key, out T? value) {

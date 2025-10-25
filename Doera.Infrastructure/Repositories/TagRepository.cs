@@ -14,6 +14,8 @@ namespace Doera.Infrastructure.Repositories {
         ) : BaseRepository<Tag>(_db), ITagRepository {
 
         public async Task ExecuteDeleteUnusedTagsAsync() {
+            // Should have added a parameter (Guid? TodoItemId = null, Guid? userId = null)
+            // This scans through the whole table, wtf was I thinking
             await _dbSet
                 .Where(tag => !tag.TodoItemTags.Any())
                 .ExecuteDeleteAsync();
@@ -33,9 +35,10 @@ namespace Doera.Infrastructure.Repositories {
                 .ToDictionary(
                     g => g.Key,
                     g => g.First(),
-                    StringComparer.OrdinalIgnoreCase
+                    StringComparer.OrdinalIgnoreCase // this is redundant cuz of slugGenerator in this
                 );
 
+            // If the itemTags were originally [ " ", "", "     "]
             if (incomingMap.Count == 0)
                 return [];
 
@@ -57,6 +60,7 @@ namespace Doera.Infrastructure.Repositories {
 
             if (newTags.Count > 0) {
                 await _dbSet.AddRangeAsync(newTags);
+                // Maybe i could add SaveChangesAsync here, so the newTags get a valid Id
             }
 
             var resolvedTags = existingTags.Values.Concat(newTags);

@@ -46,7 +46,6 @@ builder.Services.AddInfrastructureLayer();
 builder.Services.AddApplicationLayer();
 builder.Services.AddApplicationValidation();
 
-builder.Services.AddMemoryCache();
 builder.Services.AddAppCaching();
 
 var app = builder.Build();

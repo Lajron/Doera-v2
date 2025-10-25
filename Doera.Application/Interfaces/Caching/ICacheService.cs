@@ -3,7 +3,7 @@ namespace Doera.Application.Interfaces.Caching {
     public interface ICacheService {
         Task<T> GetOrCreateAsync<T>(
             string key,
-            Func<CancellationToken, Task<T>> factory,
+            Func<Task<T>> factory,
             TimeSpan? ttl = null,
             CancellationToken cancellationToken = default
         );
