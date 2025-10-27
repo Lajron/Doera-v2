@@ -55,6 +55,7 @@ namespace Doera.Web.Features.TodoItem {
             };
 
             var result = await _todoItemService.CreateAsync(request);
+
             if (!result.Succeeded) {
                 _logger.LogWarning("Create TodoItem failed (service errors) ListId={ListId} Title={Title} Errors={Errors}",
                     model.TodoListId,

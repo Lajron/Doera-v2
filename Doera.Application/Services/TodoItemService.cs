@@ -200,8 +200,8 @@ namespace Doera.Application.Services {
                 return;
             }
 
-            // Should have used NormalizedName
-            // Resolved tags can return ItemTags that don't have a valid Id yet...
+            //This is wrong but it works, should have checked by NormalizedName
+            //or in resolvetags call SaveChangesAsync so I can use the actual Ids
             var desiredTagIds = resolvedTags.Select(l => l.Tag!.Id).ToHashSet();
             var currentTagIds = item.TodoItemTags.Select(l => l.TagId).ToHashSet();
 
