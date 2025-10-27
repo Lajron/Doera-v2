@@ -6,20 +6,18 @@ using Doera.Infrastructure.Extensions;
 using Doera.Web.Extensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NToastNotify;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews()
     .AddRazorOptions(o => o.ViewLocationExpanders.Add(new CustomViewLocationExpander()))
-    .AddNToastNotifyToastr(new NToastNotify.ToastrOptions {
-        ProgressBar = true,
-        PositionClass = ToastPositions.BottomRight,
-        PreventDuplicates = true,
-        CloseButton = true,
-        TimeOut = 5000
-    });
+    .AddNToastNotifyToastr(
+        builder.Configuration.GetSection("NToastNotify:ToastrOptions").Get<ToastrOptions>()
+    );
 
 // Add ElmahIo monitoring
 builder.Services.AddElmahIoMonitor(builder.Configuration, builder.Environment);
@@ -48,6 +46,8 @@ builder.Services.AddApplicationValidation();
 
 builder.Services.AddAppCaching();
 
+builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Configuration(context.Configuration));
+
 var app = builder.Build();
 
 app.InitializeDatabase();
@@ -70,6 +70,8 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseSerilogRequestLogging();
 
 app.UseAuthentication();
 app.UseAuthorization();
